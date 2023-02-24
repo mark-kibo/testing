@@ -114,7 +114,7 @@
 										<datalist id="places">
 											{% if spaces %}
 											{% for space in spaces %}
-											<option value="{{space.parking_location}}">{{space.parking_location}}</option>
+											<option value="{{space.name}}">{{space.name}}</option>
 											{% endfor %}
 											{% else %}
 											<option value="none">no parking loactions listed</option>
@@ -145,7 +145,7 @@
 										<datalist id="places">
 											{% if spaces %}
 											{% for space in spaces %}
-											<option value="{{space.parking_location}}">{{space.parking_location}}</option>
+											<option value="{{space.name}}">{{space.name}}</option>
 											{% endfor %}
 											{% else %}
 											<option value="none">no parking loactions listed</option>
@@ -215,15 +215,15 @@
 						<div class="item">
 							<div class="car-wrap rounded ftco-animate">
 								<div class="img rounded d-flex align-items-end"
-									style="background-image: url('{{space.location_image.url}}');">
+									style="background-image: url('{{space.name_image.url}}');">
 								</div>
 								<div class="text">
-									<h2 class="mb-0"><a href="#">{{space.parking_location}}</a></h2>
+									<h2 class="mb-0"><a href="#">{{space.name}}</a></h2>
 									<div class="d-flex mb-3">
-										<span class="cat" style="color: red;">{{space.number_of_spaces}} spaces available </span>
+										<span class="cat" style="color: red;">{{space.capacity}} in capacity </span>
 										<p class="price ml-auto">{{space.pricing_per_hour}} Ksh<span>/1hr</span></p>
 									</div>
-									<p class="d-flex mb-0 d-block"><a href="#book"
+									<p class="d-flex mb-0 d-block"><a href="{% url 'spaces' space.name%}"
 											class="btn btn-primary py-2 mr-1">Book now</a> <a href="{% url 'pricing' %}"
 											class="btn btn-secondary py-2 ml-1">Details</a></p>
 								</div>

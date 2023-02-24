@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'bookparking',
+    'django_crontab',
 ]
 AUTH_USER_MODEL = 'bookparking.ReserveUser'
 
@@ -131,3 +132,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
  #  where user is the app name and User is the model class name
+CRONJOBS = [    ('0 0 * * *', 'yourappname.views.update_space_availability'),]

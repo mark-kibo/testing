@@ -78,7 +78,7 @@
     </div>
 
     <section id="form" class="ftco-section ftco-no-pt bg-light">
-      <form action="" class="form" method="post">
+      <form action="" class="form" method="POST">
         {% csrf_token %}
         <!--progresss bar-->
         <div class="progressbar">
@@ -87,23 +87,22 @@
           <div class="progress-step"  data-title="Payment"></div>
         </div>
         <h1 class="text-center">Booking form</h1>
+        {% if fmessages %}
+        <ul>
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
         <div class="form-step form-step-active">
           <div class="input-group">
-            <label for="">Check in date</label>
-            <input type="date" name="date_in" id="checkinDate">
+            <label for="">Check in</label>
+           {{form.check_in}}
           </div>
           <div class="input-group">
-            <label for="">Check in time</label>
-            <input type="time" name="check_in_time" id="checkinTime">
-          </div>
-          <div class="input-group">
-            <label for="">check out date</label>
-            <input type="date" name="date_out" id="checkoutDate">
-          </div>
-          <div class="input-group">
-            <label for="">Check out time</label>
-            <input type="time" name="check_out_time" id="checkoutTime">
-          </div>
+            <label for="">Check out</label>
+            {{form.checkout}}
+           </div>
           <div class="">
             <a href="#form" class="btn btn-next width-50 ml-auto" onclick="calculateTimeDifference()">Next</a>
           </div>
@@ -153,7 +152,7 @@
         </svg></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
-    <script src="{% static 'styles.js' %}"></script>
+    <!--<script src="{% static 'styles.js' %}"></script>-->
     <script src="{% static 'style-book.js' %}"></script>
     <script src="{% static 'price.js' %}"></script>
     <script src="{% static 'js/jquery.min.js' %}"></script>

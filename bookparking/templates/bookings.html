@@ -42,7 +42,7 @@
 	          <li class="nav-item"><a href="{% url 'home' %}" class="nav-link">Home</a></li>
 	          <li class="nav-item "><a href="{% url 'about' %}" class="nav-link">About</a></li>
 	          <li class="nav-item"><a href="{% url 'pricing' %}" class="nav-link">Pricing</a></li>
-            <li class="nav-item active"><a href="{% url 'bookings' %}" class="nav-link">View bookings</a></li>
+            <li class="nav-item active"><a href="{% url 'bookings'  %}" class="nav-link">View bookings</a></li>
 	          <li class="nav-item"><a href="{% url 'contact' %}" class="nav-link">Contact</a></li>
             {% if user.is_authenticated %}
 					  <li class="nav-item"><a href="{% url 'logout' %}" class="nav-link">logout</a></li>
@@ -68,7 +68,45 @@
 
     <section class="ftco-section">
 			<div>
-        There are no bookings
+          <h1>Booking Confirmation</h1>
+          <p>Your booking has been confirmed!</p>
+          <p>Booking Details:</p>
+          <table>
+            <thead>
+                <tr>
+                    <th>Location</th>
+                    <th>Space name</th>
+                    <th>start time</th>
+                    <th>endtime</th>
+                    <th>status</th>
+                    <th>Update</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for book in booking %}
+                <tr>
+                    <td>{{  book.space.location.name  }}</td>
+                    <td>{{ book.space.name }}</td>
+                    <td>{{ book.check_in }}</td>
+                    <td>{{ book.checkout }}</td>
+                    {% if book.is_expired == False %} <td>active</td>{% else %} <td>expired</td> {% endif %}
+                    <td>
+                        <a href="">
+                            Update
+                        </a>
+                    </td>
+                    <td>
+                        <form method="post" action="">
+                            {% csrf_token %}
+                            <input type="submit" value="Delete">
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    
       </div>
 		</section>
 

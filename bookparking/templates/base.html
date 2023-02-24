@@ -1,0 +1,157 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{% static 'base.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,500,600,700,800&display=swap"
+		rel="stylesheet">
+
+	<link rel="stylesheet" href="{% static 'css/open-iconic-bootstrap.min.css' %}">
+	<link rel="stylesheet" href="{% static 'css/animate.css' %}">
+
+	<link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
+	<link rel="stylesheet" href="{% static 'css/owl.theme.default.min.css' %}">
+	<link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
+
+	<link rel="stylesheet" href="{% static 'css/aos.css' %}">
+
+	<link rel="stylesheet" href="{% static 'css/ionicons.min.css' %}">
+
+	<link rel="stylesheet" href="{% static 'css/bootstrap-datepicker.css' %}">
+	<link rel="stylesheet" href="{% static 'css/jquery.timepicker.css' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+	<link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
+	<link rel="stylesheet" href="{% static 'css/icomoon.css' %}">
+	<link rel="shortcut icon" href="{% static 'admin/images/reserve.png'%}" />
+</head>
+<body>
+	<nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
+		<div class="container">
+			<a class="navbar-brand" href="{% url 'home' %}">Reserve<span>Space</span></a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav"
+				aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="oi oi-menu"></span> Menu
+			</button>
+
+			<div class="collapse navbar-collapse" id="ftco-nav">
+				<ul class="navbar-nav ml-auto">
+					<li class="nav-item active"><a href="{% url 'home' %}" class="nav-link">Home</a></li>
+					<li class="nav-item"><a href="{% url 'about' %}" class="nav-link">About</a></li>
+					<li class="nav-item"><a href="{% url 'pricing' %}" class="nav-link">Pricing</a></li>
+					<li class="nav-item"><a href="{% url 'bookings' %}" class="nav-link">View bookings</a></li>
+					<li class="nav-item"><a href="{% url 'contact' %}" class="nav-link">Contact</a></li>
+					{% if user.is_authenticated %}
+					<li class="nav-item"><a href="{% url 'logout' %}" class="nav-link">logout</a></li>
+					{% else %}
+					<li class="nav-item"><a href="{% url 'register_user' %}" class="nav-link">Sign Up</a></li>
+					<li class="nav-item"><a href="{% url 'login_user' %}" class="nav-link">Sign In</a></li>
+					{% endif %}
+
+				</ul>
+			</div>
+		</div>
+	</nav>
+	<!-- END nav -->
+
+  <div class="hero-wrap ftco-degree-bg" style="background-image: url('{% static "images/brydon-mccluskey-vMneecAwo34-unsplash.jpg" %}');"
+		data-stellar-background-ratio="0.5">
+		<div class="overlay"></div>
+		<div class="container">
+			<div class="row no-gutters slider-text justify-content-start align-items-center justify-content-center">
+				<div class="col-lg-8 ftco-animate">
+					<div class="text w-100 text-center mb-md-5 pb-md-5">
+						{% if user.is_authenticated %}
+						<h1 class="mb-4">   Parking spaces at {{ location.name }}</h1>
+						<p style="font-size: 18px; ">Click on a space  below to book it</p>
+							{% if messages %}
+							{% for message in messages %}
+
+						<h3 style="color: red;">{{message}}</h3>
+						{% endfor %}
+						{% endif %}
+					{% else %}
+					<h1 class="mb-4">Fast &amp; Easy to reserve a parking space</h1>
+						<p style="font-size: 18px;">Are you struggling to find a parking space? Look no further. Login to reserve one</p>
+					{% endif %}
+						
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+  
+	<section class="ftco-section ftco-no-pt bg-light">
+
+  {% if spaces %}
+  
+    <div class="parking-spaces">
+      {% for space in spaces %}
+        <a href="{% url 'book' space.id %}">
+          <div class="parking-space{% if not space.is_available %} booked{% endif %}">
+            <span class="space-number">{{ space.id }}</span>
+            {% if space.is_booked %}
+              <span class="status available">booked</span>
+            {% else %}
+              <span class="status booked">Available</span>
+            {% endif %}
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>There are no available parking spaces at this location.</p>
+  {% endif %}
+  </section>
+
+
+  <footer class="ftco-footer ftco-bg-dark ftco-section">
+		<div class="container">
+		  <div class="row">
+			<div class="col-md-12 text-center">
+  
+			  <p><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+	Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved
+	<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p>
+			</div>
+		  </div>
+		</div>
+	  </footer>
+	  
+
+
+
+	<!-- loader -->
+	<div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px">
+			<circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee" />
+			<circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10"
+				stroke="#F96D00" />
+		</svg></div>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+	<script src="{% static 'styles.js' %}"></script>
+	<script src="{% static 'js/jquery.min.js' %}"></script>
+	<script src="{% static 'js/jquery-migrate-3.0.1.min.js' %}"></script>
+	<script src="{% static 'js/popper.min.js' %}"></script>
+	<script src="{% static 'js/bootstrap.min.js' %}"></script>
+	<script src="{% static 'js/jquery.easing.1.3.js' %}"></script>
+	<script src="{% static 'js/jquery.waypoints.min.js' %}"></script>
+	<script src="{% static 'js/jquery.stellar.min.js' %}"></script>
+	<script src="{% static 'js/owl.carousel.min.js' %}"></script>
+	<script src="{% static 'js/jquery.magnific-popup.min.js' %}"></script>
+	<script src="{% static 'js/aos.js' %}"></script>
+	<script src="{% static 'js/jquery.animateNumber.min.js' %}"></script>
+	<script src="{% static 'js/bootstrap-datepicker.js' %}"></script>
+	<script src="{% static 'js/jquery.timepicker.min.js' %}"></script>
+	<script src="{% static 'js/scrollax.min.js' %}"></script>
+	<script src="{% static 'js/google-map.js' %}"></script>
+	<script src="{% static 'js/main.js' %}"></script>
+
+
+</body>
+</html>

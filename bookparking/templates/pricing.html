@@ -94,10 +94,10 @@
 								{% for space in spaces %}
 								<tr class="">
 									<td class="car-image">
-										<div class="img" style="background-image:url('{{space.location_image.url}}');"></div>
+										<div class="img" style="background-image:url('{{space.name_image.url}}');"></div>
 									</td>
 									<td class="product-name">
-										<h3>{{space.parking_location}}</h3>
+										<h3>{{space.name}}</h3>
 										<p class="mb-0 rated">
 											<span>rated:</span>
 											<span class="ion-ios-star"></span>
@@ -118,7 +118,7 @@
 										</div>
 										<div class="price-rate">
 											<h3>
-												<span class="num"><small class="currency"></small>{{space.number_of_spaces}}</span>
+												<span class="num"><small class="currency"></small>{{space.capacity}}</span>
 												<span class="per">spaces available</span>
 											</h3>
 										</div>

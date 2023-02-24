@@ -1,0 +1,29 @@
+.parking-spaces {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .parking-space {
+    width: 100px;
+    height: 100px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    text-align: center;
+    cursor: pointer;
+  }
+  
+  .parking-space.booked {
+    background-color: #ddd;
+  }
+  
+  .status {
+    margin-top: 5px;
+    padding: 2px 5px;
+    border-radius: 5
+  }  
