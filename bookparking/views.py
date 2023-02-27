@@ -154,12 +154,13 @@ def login_user(request):
 
         user = authenticate(username=username, password=password)
         print(user.is_customer)
-        if user.is_customer:
-            login(request, user)
-            return redirect('home')
-        else:
-            messages.info(request, "incorrect username or password")
-            return redirect('login_user')
+        if user is not None:
+            if user.is_customer:
+                login(request, user)
+                return redirect('home')
+            else:
+                messages.info(request, "incorrect username or password")
+                return redirect('login_user')
     return render(request, 'login.html')
 
 
@@ -179,12 +180,13 @@ def register_user(request):
             # authenticate user
             user = authenticate(username=name, password=password)
             print(user)
-            if user.is_customer:
-                login(request, user)
-                return redirect('home')
-            else:
-                messages.info(request, "failed to save")
-                return redirect('register_user')
+            if user is not None:
+                if user.is_customer:
+                    login(request, user)
+                    return redirect('home')
+                else:
+                    messages.info(request, "failed to save")
+                    return redirect('register_user')
         else:
             messages.info(request, f"{form.errors}")
             return redirect('register_user')

@@ -11,6 +11,7 @@ from django.utils import timezone
 # create client/staff table
 class ReserveUser(AbstractUser):
     is_customer = models.BooleanField('is_customer', default=False)
+    is_employee = models.BooleanField('is_employee', default=False)
 
 # table for available spaces at a certain location
 class Location(models.Model):

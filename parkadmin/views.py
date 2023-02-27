@@ -148,7 +148,7 @@ def add_user(request):
 
 
 def add_spaces(request):
-    locations=Location.objects.all()
+    
     if request.method == "POST":
         location = request.POST['location']
         location_obj=Location.objects.get(name=location)
@@ -161,6 +161,7 @@ def add_spaces(request):
         messages.info(request, f"spaces {capacity} have been created successfully")
         return HttpResponseRedirect(reverse('parkingspace_management'))
     else:
+        locations=Location.objects.all()
         context={
             'locations':locations
         }
@@ -333,22 +334,18 @@ def login_admin(request):
         username = request.POST['name']
         password = request.POST['password']
 
-        if Employee.objects.filter(username=username).exists():
-
-            user=Employee.objects.get(username=username)
-            if password == user.password:
-                login(request, user)
-                return HttpResponseRedirect(reverse('index'))
-            else:
-                messages.info(request, "password is incorrect")
-                return redirect('login_admin')
-
-        else:
-            messages.info(request, "Username or password is incorrect")
-            return redirect('login_admin')
         # authenticate our user
-    else:
-        return render(request, "parking-admin/login.html")
+
+        user = authenticate(username=username, password=password)
+        print(user.is_customer)
+        if user is not None:
+            if user.is_employee:
+                login(request, user)
+                return redirect('index')
+            else:
+                messages.info(request, "incorrect username or password")
+                return redirect('login_admin')
+    return render(request, 'parking-admin/login.html')
 
 
 def logout_admin(request):

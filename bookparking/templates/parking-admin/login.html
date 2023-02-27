@@ -42,7 +42,7 @@
                 {% endfor %}
                 {% endif %}
 
-              <form class="pt-3" method="post" action="{% url 'login_admin' %}">
+              <form class="pt-3" method="post">
                 {% csrf_token %}
                 <div class="form-group">
                   <input type="text" name="name" id="" class="form-control form-control-lg" placeholder="Username">

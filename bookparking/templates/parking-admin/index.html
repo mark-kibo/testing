@@ -104,8 +104,8 @@
                         <!-- User profile and search -->
                         <!-- ============================================================== -->
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle waves-effect waves-dark" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <img src="{% static 'parkadmin/assets/images/users/1.jpg'%}" alt="user" class="profile-pic me-2">Markarn Doe
+                            <a class="nav-link dropdown-toggle waves-effect waves-dark" href="{% url 'logout_employee' %}" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="{% static 'parkadmin/assets/images/users/1.jpg'%}" alt="user" class="profile-pic me-2">{{request.user}}
                             </a>
                             <ul class="dropdown-menu show" aria-labelledby="navbarDropdown"></ul>
                         </li>
@@ -146,6 +146,14 @@
                                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                                     href="{% url 'reports'%}" aria-expanded="false"><i class="me-3 fa fa-table"
                                     aria-hidden="true"></i><span class="hide-menu">Reports</span></a></li>
+                                    {% if user.is_authenticated and user.is_employee %}
+                                    <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                                        href="{% url 'logout_employee' %}" aria-expanded="false">
+                                        <i class="me-3 fa fa-user" aria-hidden="true"></i><span
+                                            class="hide-menu">Logout</span></a>
+                                </li>
+                                {% endif %}
+             
                     </ul>
 
                 </nav>
