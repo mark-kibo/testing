@@ -1,19 +1,21 @@
-var x = document.getElementById("checkinTime");
-var y = document.getElementById("checkoutTime");
-var price = document.getElementById("amount");
+const checkinInput = document.getElementById("checkinTime");
+const checkoutInput = document.getElementById("checkoutTime");
+const amountInput = document.getElementById("amount");
 
+function calculateAmount() {
+  const checkinDate = new Date(checkinInput.value);
+  const checkoutDate = new Date(checkoutInput.value);
 
-
-
-function calculateTimeDifference() {
-    var checkInTime = new Date("01/01/1900 " + x.value);
-    var checkOutTime = new Date("01/01/1900 " + y.value);
-    var timeDifference = (checkOutTime - checkInTime) / 1000 / 60; // in minutes
-    var hours = Math.floor(timeDifference / 60);
-    var minutes = Math.round(timeDifference % 60);
-    price.value= (price.value *  timeDifference) / 60;
-    console.log(timeDifference)
+  const durationMs = checkoutDate.getTime() - checkinDate.getTime();
+  const durationHours = durationMs / (1000 * 60 * 60); // convert to hours
+  console.log(typeof(durationHours))
+  // update amount value with 2 decimal places
+  var amount=amountInput.value * durationHours
+  console.log(amount)
+  if (durationHours > 0){
+    amountInput.value=amount;
   }
-  
+}
 
-  
+checkinInput.addEventListener("change", calculateAmount);
+checkoutInput.addEventListener("change", calculateAmount);

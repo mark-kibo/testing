@@ -11,8 +11,6 @@ from django.utils import timezone
 # create client/staff table
 class ReserveUser(AbstractUser):
     is_customer = models.BooleanField('is_customer', default=False)
-    is_employee = models.BooleanField( 'is_employee', default=False)
-
 
 # table for available spaces at a certain location
 class Location(models.Model):
@@ -61,7 +59,7 @@ class Booking(models.Model):
     check_in = models.DateTimeField()
     checkout = models.DateTimeField()
     is_conflicting = models.BooleanField(default=False)
-    is_expired = models.BooleanField(default=False)
+    has_expired = models.BooleanField(default=False)
     government_id= models.CharField(max_length=8, primary_key=False, unique=False, null=True)
     car_plate = models.CharField(max_length=255, null=True, unique=False)
     
@@ -77,5 +75,12 @@ class Booking(models.Model):
 
     def is_expired(self):
         """Check if the booking time has expired"""
-        now = timezone.now()
-        return now > self.checkout
+        now = datetime.now()
+        return self.checkout.strftime('%Y-%m-%d %H:%M:%S') < now.strftime('%Y-%m-%d %H:%M:%S') 
+
+
+
+
+class Employee(models.Model):
+    username=models.CharField(max_length=255)
+    password=models.CharField(max_length=1000)

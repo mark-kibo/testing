@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{{ title }}</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+            white-space: normal;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ title }}</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Reservation ID</th>
+                <th>User Name</th>
+                <th>Parking Location</th>
+                <th>Parking Space ID</th>
+                <th>Check-in Time</th>
+                <th>Check-out Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in bookings %}
+            <tr>
+                <td>{{ booking.id }}</td>
+                <td>{{ booking.client.username }}</td>
+                <td>{{ booking.space.location.name }}</td>
+                <td>{{ booking.space.id }}</td>
+                <td>{{ booking.check_in }}</td>
+                <td>{{ booking.checkout }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

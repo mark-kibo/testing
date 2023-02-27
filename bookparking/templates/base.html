@@ -86,7 +86,7 @@
 	</div>
 
   
-	<section class="ftco-section ftco-no-pt bg-light">
+	<section class="ftco-section ftco-no-pt bg-light" id="spaces">
 
   {% if spaces %}
   
@@ -94,11 +94,11 @@
       {% for space in spaces %}
         <a href="{% url 'book' space.id %}">
           <div class="parking-space{% if not space.is_available %} booked{% endif %}">
-            <span class="space-number">{{ space.id }}</span>
+            <span class="space-number">{{ space.name }}</span>
             {% if space.is_booked %}
               <span class="status available">booked</span>
             {% else %}
-              <span class="status booked">Available</span>
+              <span class="status booked">Book</span>
             {% endif %}
           </div>
         </a>

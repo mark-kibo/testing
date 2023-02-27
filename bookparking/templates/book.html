@@ -63,19 +63,7 @@
     </nav>
     <!-- END nav -->
 
-    <div class="hero-wrap ftco-degree-bg" style="background-image: url('{% static "images/brydon-mccluskey-vMneecAwo34-unsplash.jpg" %}');" data-stellar-background-ratio="0.5">
-        <div class="overlay"></div>
-        <div class="container">
-            <div class="row no-gutters slider-text justify-content-start align-items-center justify-content-center">
-                <div class="col-lg-8 ftco-animate">
-                    <div class="text w-100 text-center mb-md-5 pb-md-5">
-                        <h1 class="mb-4">Proceed with next phase to reserve your space</h1>
-                        <p style="font-size: 18px;">first set your preffered time span then headout to payment</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    
 
     <section id="form" class="ftco-section ftco-no-pt bg-light">
       <form action="" class="form" method="POST">
@@ -87,7 +75,7 @@
           <div class="progress-step"  data-title="Payment"></div>
         </div>
         <h1 class="text-center">Booking form</h1>
-        {% if fmessages %}
+        {% if messages %}
         <ul>
         {% for message in messages %}
             <li>{{ message }}</li>
@@ -114,11 +102,11 @@
           </div>
           <div class="input-group">
             <label for="">Amount</label>
-            <input type="text" name="amount_paid" value="{{price}}" id="amount">
+            <input type="text" name="amount" value="{{space.location.pricing_per_hour}}" id="amount">
           </div>
           <div class="btn-groups">
-            <a href="#form" class=" btn btn-prev" h>Previous</a>
-            <button type="submit" class="btn">Submit</button>
+            <a href="#form" class="btn btn-prev" id="prev">Previous</a>
+            <input type="submit" value="Submit" class="btn">
           </div>
         </div>
       </form>
@@ -171,7 +159,7 @@
     <script src="{% static 'js/scrollax.min.js' %}"></script>
     <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'style-book.js' %}"></script>
-
+  
 </body>
 
 </html>

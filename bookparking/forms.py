@@ -6,24 +6,25 @@ from django.utils import timezone
 
 
 
-
 class RegisterForm(UserCreationForm, ModelForm):
     class Meta:
-        model=ReserveUser
-        fields=["username", "password1", "password2"]
-        widgets={
-            "username": forms.TextInput(attrs={'class': 'form-control form-control-lg', 'name' : 'name', 'placeholder': 'Username'}),
-            "password1":forms.TextInput(attrs={'class': 'form-control form-control-lg', 'name' : 'pass1', 'placeholder': 'Password'}),
-            "password2":forms.TextInput(attrs={'class': 'form-control form-control-lg', 'name' : 'pass2', 'placeholder': 'Confirm Password'})
+        model = ReserveUser
+        fields = ["username", "password1", "password2"]
+        widgets = {
+            "username": forms.TextInput(),
+            "password1": forms.PasswordInput(attrs={
+                'class': 'form-control form-control-lg',
+                'name': 'pass1',
+                'placeholder': 'Password'
+            })
         }
-
 class BookingForm(forms.ModelForm):
     class Meta:
         model = Booking
         fields = ['check_in', 'checkout']
         widgets = {
-            'check_in': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
-            'checkout': forms.DateTimeInput(attrs={'type': 'datetime-local'})
+            'check_in': forms.DateTimeInput(attrs={'type': 'datetime-local', 'id':'checkinTime'}),
+            'checkout': forms.DateTimeInput(attrs={'type': 'datetime-local', 'id':'checkoutTime'})
         }
 
     def clean(self):
@@ -37,3 +38,20 @@ class BookingForm(forms.ModelForm):
             if check_out <= check_in:
                 raise forms.ValidationError('Check-out time must be later than check-in time.')
         return cleaned_data
+
+    
+
+
+class UserForm(UserCreationForm, ModelForm):
+    class Meta:
+        model=ReserveUser
+        fields=["username" , "password1", "password2"]
+        widgets = {
+            "username": forms.TextInput(attrs={}),
+            "password1": forms.PasswordInput(attrs={}),
+            "password2": forms.PasswordInput(attrs={})
+            }
+
+
+    
+

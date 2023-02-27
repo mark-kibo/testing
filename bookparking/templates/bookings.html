@@ -17,6 +17,15 @@
 
     <link rel="stylesheet" href="{% static 'css/aos.css' %}">
 
+
+
+    <!--
+      datatables
+    -->
+    <link rel="stylesheet" type="text/css" href="DataTables/datatables.min.css"/>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jq-3.6.0/dt-1.13.2/b-2.3.4/b-colvis-2.3.4/b-html5-2.3.4/b-print-2.3.4/r-2.4.0/datatables.min.css"/>
+
     <link rel="stylesheet" href="{% static 'css/ionicons.min.css' %}">
 
     <link rel="stylesheet" href="{% static 'css/bootstrap-datepicker.css' %}">
@@ -66,14 +75,18 @@
       </div>
     </section>
 
-    <section class="ftco-section">
+    <section class="ftco-section" id="book">
 			<div>
-          <h1>Booking Confirmation</h1>
-          <p>Your booking has been confirmed!</p>
-          <p>Booking Details:</p>
-          <table>
-            <thead>
-                <tr>
+        <center><h1>Booking Confirmation</h1></center>
+        {% if messages %}
+        {% for message in messages %}
+          <center><p>{{message}}</p></center>
+        {% endfor %}
+        {% endif %}
+          <center><p>Booking Details:</p></center>
+          <table border="1.0" id="table_id">
+            <thead style="color:black;">
+                <tr class="fs-5">
                     <th>Location</th>
                     <th>Space name</th>
                     <th>start time</th>
@@ -81,6 +94,7 @@
                     <th>status</th>
                     <th>Update</th>
                     <th>Delete</th>
+                    <th>Receipt</th> 
                 </tr>
             </thead>
             <tbody>
@@ -90,18 +104,37 @@
                     <td>{{ book.space.name }}</td>
                     <td>{{ book.check_in }}</td>
                     <td>{{ book.checkout }}</td>
-                    {% if book.is_expired == False %} <td>active</td>{% else %} <td>expired</td> {% endif %}
+                    {% if book.is_expired == False %} 
+                    <td > <p class="btn btn-success" > active</p></td> {% else %}
+
+                    <td ><p class="btn btn-danger">expired</p></td>{% endif %}
                     <td>
-                        <a href="">
-                            Update
-                        </a>
+                      {% if book.is_expired == True %} 
+                      <a href="{% url 'update' book.id %}">
+                        <button class="btn btn-primary" disabled>Update</button>
+                    </a>
+                      {% else %}
+                      <a href="{% url 'update' book.id %}" >
+                        <button class="btn btn-primary"> Update</button>
+                       
+                    </a>
+                      {% endif %}
+
                     </td>
                     <td>
-                        <form method="post" action="">
-                            {% csrf_token %}
-                            <input type="submit" value="Delete">
-                        </form>
-                    </td>
+                      {% if book.is_expired == True %} 
+                      <a href="">
+                        <button disabled class="btn btn-primary">Delete</button>
+                        
+                    </a>
+                      {% else %}
+                      <a href="{% url 'delete_booking' book.id %}" >
+                        <button class="btn btn-danger">Delete</button>
+                       
+                    </a>
+                      {% endif %}
+                  </td>
+                  <td><a href="{% url 'receipt' book.id %}"><button class="btn btn-primary">Download</button></a></td>                  
                 </tr>
                 {% endfor %}
             </tbody>
@@ -148,6 +181,18 @@
   <script src="//maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
   <script src="{% static 'js/google-map.js' %}"></script>
   <script src="{% static 'js/main.js' %}"></script>
+
+  <!--datatables-->
+
+<script type="text/javascript" src="DataTables/datatables.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/v/dt/jq-3.6.0/dt-1.13.2/b-2.3.4/b-colvis-2.3.4/b-html5-2.3.4/b-print-2.3.4/r-2.4.0/datatables.min.js"></script>
+<script>
+  $(document).ready( function () {
+    $('#table_id').DataTable();
+} );
+</script>
     
     
   </body>

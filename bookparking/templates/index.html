@@ -96,7 +96,7 @@
 					<div class="row no-gutters">
 						<div class="col-md-4 d-flex align-items-center">
 							{% if user.is_authenticated %}
-							<form action="#" class="request-form ftco-animate bg-primary" method="post">
+							<form action="#" class="request-form ftco-animate bg-primary" method="post" id="proceed">
 								{% csrf_token %}
 								<h2><center>Reserve space</center></h2>
 								<div class="form-group">
@@ -223,7 +223,7 @@
 										<span class="cat" style="color: red;">{{space.capacity}} in capacity </span>
 										<p class="price ml-auto">{{space.pricing_per_hour}} Ksh<span>/1hr</span></p>
 									</div>
-									<p class="d-flex mb-0 d-block"><a href="{% url 'spaces' space.name%}"
+									<p class="d-flex mb-0 d-block"><a href="#proceed"
 											class="btn btn-primary py-2 mr-1">Book now</a> <a href="{% url 'pricing' %}"
 											class="btn btn-secondary py-2 ml-1">Details</a></p>
 								</div>
