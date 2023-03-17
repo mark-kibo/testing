@@ -19,7 +19,9 @@ urlpatterns=[
     path('create-space/<str:location>', views.create_spaces, name="create-space"),
     path('receipt/<int:pk>', views.billing_receipt, name="receipt"),
     path('delete/<int:pk>', views.delete_booking, name="delete_booking"),
-    path('update/<int:pk>', views.update, name="update")
+    path('update/<int:pk>', views.update, name="update"),
+    path('maps/<str:address>', views.maps, name="maps"),
+    path('endbook/<int:pk>', views.end_book , name="end_book")
 
 ]
 

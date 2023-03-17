@@ -123,6 +123,19 @@
 									</div>
 								</div>
 								<div class="form-group">
+									<label for="" class="label">Parking spaces</label>
+										<input type="text" class="form-control" placeholder=""  list="places" name="location" required>
+										<datalist id="places">
+											{% if spaces %}
+											{% for space in spaces %}
+											<option value="{{space.name}}">{{space.name}}</option>
+											{% endfor %}
+											{% else %}
+											<option value="none">no parking loactions listed</option>
+											{% endif %}
+										</datalist>
+								</div>
+								<div class="form-group">
 									<button type="submit" class="btn btn-secondary py-3 px-4">Proceed to book</button>
 								</div>
 							</form>

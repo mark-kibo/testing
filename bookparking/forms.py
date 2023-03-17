@@ -10,18 +10,10 @@ class RegisterForm(UserCreationForm, ModelForm):
     class Meta:
         model = ReserveUser
         fields = ["username", "password1", "password2"]
-        widgets = {
-            "username": forms.TextInput(),
-            "password1": forms.PasswordInput(attrs={
-                'class': 'form-control form-control-lg',
-                'name': 'pass1',
-                'placeholder': 'Password'
-            })
-        }
 class BookingForm(forms.ModelForm):
     class Meta:
         model = Booking
-        fields = ['check_in', 'checkout']
+        fields = ['check_in']
         widgets = {
             'check_in': forms.DateTimeInput(attrs={'type': 'datetime-local', 'id':'checkinTime'}),
             'checkout': forms.DateTimeInput(attrs={'type': 'datetime-local', 'id':'checkoutTime'})

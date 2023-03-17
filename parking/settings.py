@@ -41,8 +41,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bookparking',
     'django_crontab',
+    'crispy_forms',
+    'crispy_bootstrap5'
+
 ]
 AUTH_USER_MODEL = 'bookparking.ReserveUser'
+CRISPY_TEMPLATE_PACK ='bootstrap5'
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -133,3 +138,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
  #  where user is the app name and User is the model class name
 CRONJOBS = [    ('0 0 * * *', 'yourappname.views.update_space_availability'),]
+# settings.py
+
+# Other settings...
+
+# Google Maps API key
+GOOGLE_MAPS_API_KEY = 'AIzaSyDBq8Dq8LSysLUuMa80PVsOqO2ZA33AZWw"'

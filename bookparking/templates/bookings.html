@@ -94,7 +94,7 @@
                     <th>status</th>
                     <th>Update</th>
                     <th>Delete</th>
-                    <th>Receipt</th> 
+                    <th>Endbook</th> 
                 </tr>
             </thead>
             <tbody>
@@ -134,7 +134,11 @@
                     </a>
                       {% endif %}
                   </td>
-                  <td><a href="{% url 'receipt' book.id %}"><button class="btn btn-primary">Download</button></a></td>                  
+                  {% if book.is_expired == True %} 
+                  <td><button class="btn btn-primary" disabled>endbook</button></td>
+                  {% else %}
+                  <td><a href="{% url 'end_book' book.id %}"><button class="btn btn-primary">endbook</button></a></td>
+                  {% endif %}
                 </tr>
                 {% endfor %}
             </tbody>

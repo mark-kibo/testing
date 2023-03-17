@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from datetime import datetime
 from simple_history.models import HistoricalRecords
 from django.utils import timezone
-
+import geocoder
 # Create your models here.
 
 
@@ -46,20 +46,12 @@ class ParkingSpace(models.Model):
                 return False
         return True
 
-    def book(self, check_in, check_out):
-        """Mark the space as booked for the specified time range"""
-        for booking in self.booking_set.all():
-            if not (check_out <= booking.check_in or check_in >= booking.checkout):
-                # Mark the booking as conflicting with the current booking
-                booking.is_conflicting = True
-                booking.save()
 
 class Booking(models.Model):
     space = models.ForeignKey(ParkingSpace, on_delete=models.CASCADE)
     client = models.ForeignKey(ReserveUser, on_delete=models.CASCADE)
     check_in = models.DateTimeField()
-    checkout = models.DateTimeField()
-    is_conflicting = models.BooleanField(default=False)
+    checkout = models.DateTimeField(null=True)
     has_expired = models.BooleanField(default=False)
     government_id= models.CharField(max_length=8, primary_key=False, unique=False, null=True)
     car_plate = models.CharField(max_length=255, null=True, unique=False)
@@ -68,11 +60,6 @@ class Booking(models.Model):
     def __str__(self):
         return f'{self.space} booking ({self.check_in} - {self.checkout})'
 
-    def save(self, *args, **kwargs):
-        """Check if the booking conflicts with any existing bookings"""
-        if not self.is_conflicting and not self.space.is_available(self.check_in, self.checkout):
-            self.is_conflicting = True
-        super().save(*args, **kwargs)
 
     def is_expired(self):
         """Check if the booking time has expired"""
@@ -85,3 +72,19 @@ class Booking(models.Model):
 class Employee(models.Model):
     username=models.CharField(max_length=255)
     password=models.CharField(max_length=1000)
+
+
+
+acces_token='pk.eyJ1Ijoid2F3ZXJ1ZnJhIiwiYSI6ImNsZjd2OWE3YjAyOWYzeXBubTgxdzJyeDgifQ.JNJMOHwkX74B3jLDv1PYeg'
+class Address(models.Model):
+    address=models.CharField(max_length=25)
+    lat=models.FloatField(blank=True, null=True)
+    long=models.FloatField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        g=geocoder.mapbox(self.address, key=f'{acces_token}')
+        g=g.latlng #[lat, long]
+        self.lat=g[0]
+        self.long=g[1]
+
+        return super(Address, self).save(*args, **kwargs)

@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<!--
+ @license
+ Copyright 2019 Google LLC. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+-->
+<html>
+  <head>
+    <title>Add Map</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+
+    <link rel="stylesheet" type="text/css" href="{% static 'style-maps.css'%}" />
+  </head>
+  <body>
+    <h1>Live Map</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <label for="parking_location">Select parking location:</label>
+        <input type="text" id="parking_location" name="parking_location">
+        <button type="submit">Submit</button>
+    </form>
+    {% google_maps map %}
+    {% google_maps_js %}
+  
+  </body>
+</html>

@@ -15,7 +15,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 
 
 # import our models for use
-from .models import Location, ParkingSpace, Booking, ReserveUser
+from .models import Location, ParkingSpace, Booking, ReserveUser, Address
 
 # Create your views here.
 
@@ -223,10 +223,6 @@ def book(request, space_id):
         print(form)
         if form.is_valid():
             check_in = form.cleaned_data['check_in']
-            check_out = form.cleaned_data['checkout']
-            if not space.is_available(check_in, check_out):
-                # Space is not available for booking
-                return render(request, 'base.html', {'space': space})
             # Create a new booking
             if books:
                 messages.info(request, "you have an active booking")
@@ -239,8 +235,6 @@ def book(request, space_id):
                 booking.car_plate=request.session.get('param2')
                 # Update space availability
                 space.is_booked = True
-                space.save()
-                space.book(check_in, check_out)
                 booking.save()
                 messages.info(request, "book confirmed")
                 # Redirect to the booking confirmation page
@@ -248,6 +242,14 @@ def book(request, space_id):
     else:
         form = BookingForm()
         return render(request, 'book.html', {'space': space, 'form': form})
+    
+def end_book(request, pk):
+    time=datetime.now()
+    data=Booking.objects.get(id=pk)
+    data.checkout=time
+    data.save()
+    update_space_availability()
+    return redirect('bookings')
 
 
 def create_space(location_obj, capacity):
@@ -275,7 +277,7 @@ def update_space_availability():
             booking.space.save()
             booking.has_expired = True
             booking.save()
-            print(f"")
+            print(f"done")
 
 def delete_booking(request, pk):
     Book_obj=get_object_or_404(Booking, id=pk)
@@ -295,3 +297,9 @@ def update(request, pk):
     else:
         form = BookingForm(instance=obj)
         return render(request, "update.html", {'form':form})
+
+
+def  maps(request):
+    data=Address.objects.all()
+    print(type(data))
+    return render(request, "map.html", {'data': data})
