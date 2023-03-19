@@ -4,18 +4,32 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .forms import RegisterForm, BookingForm
 from django.utils import timezone
-from datetime import datetime
+from datetime import datetime, timedelta
+import pytz
 from datetime import date
 from django.http import HttpResponse
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
+from django.http import JsonResponse
+import json
 
-
-
+from requests.api import request
+import requests
+import datetime as dt
+import base64
+from requests.auth import HTTPBasicAuth
 # import our models for use
 from .models import Location, ParkingSpace, Booking, ReserveUser, Address
+
+#mpesa needed stuff
+mpesa_environment="sandbox"
+mpesa_consumer_key="O2eBlmzo47MnRZlMGqGKqwn2YqssPfnU"
+mpesa_consumer_secret="VRjiW4fZSCJsdFPd"
+lnm_phone_number='254769347882'
+mpesa_passkey='bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919'
+mpesa_express_shortcode="174379"
 
 # Create your views here.
 
@@ -99,22 +113,22 @@ def create_spaces(request, location):
 
 
 def index(request):
+    update_space_availability()
     if request.method == "POST":
         try:
             id_number = request.POST['id_no']
             plate_number = request.POST['plate']
             parking_location = request.POST['location']
+            space=request.POST['spaces']
+            checkin=request.POST['checkin']
+            print(space)
 
             request.session['param1']=id_number
             request.session['param2']=plate_number
-            location=get_object_or_404(Location, name=parking_location)
-            if location:
-                return redirect("spaces", parking_location)
-            else:
-                messages.info(request, f"No location named{parking_location}")
-                return redirect("home")
+            request.session['param3']=checkin
+            return redirect('book', space)
         except Exception as e:
-            messages.info(request, "{}".format(e))
+            messages.info(request, "There are no available spaces on the specified location")
             return redirect('/')
     else:
         spaces = Location.objects.all()
@@ -204,52 +218,111 @@ def logout_user(request):
     return redirect('home')
 
 
-def spaces(request, parking_location):
-    new=update_space_availability()
-    print(new)
+def spaces(request, parking_location):   
     location = get_object_or_404(Location, name=parking_location)
-    print(location)
+
     spaces = ParkingSpace.objects.filter(location=location, is_booked=False)
     return render(request, "base.html", {'location': location, 'spaces': spaces})
 
 
 def book(request, space_id):
     space = get_object_or_404(ParkingSpace, id=space_id)
+    client=get_object_or_404(ReserveUser, username=request.user.username)
     today = datetime.today()
-    books= Booking.objects.filter(has_expired=False, checkout__date=today).first()
-    print(books)
-    if request.method == 'POST':
-        form = BookingForm(request.POST)
-        print(form)
-        if form.is_valid():
-            check_in = form.cleaned_data['check_in']
-            # Create a new booking
-            if books:
-                messages.info(request, "you have an active booking")
-                return redirect('bookings')
-            else:
-                booking = form.save(commit=False)
-                booking.space = space
-                booking.client = request.user
-                booking.government_id=request.session.get('param1')
-                booking.car_plate=request.session.get('param2')
-                # Update space availability
-                space.is_booked = True
-                booking.save()
-                messages.info(request, "book confirmed")
-                # Redirect to the booking confirmation page
-                return redirect('bookings')
+    books= Booking.objects.filter(has_expired=False, check_in__date=today, client=client).first()
+    if books:
+        messages.info(request, "you have an active booking")
+        return redirect('bookings')
     else:
-        form = BookingForm()
-        return render(request, 'book.html', {'space': space, 'form': form})
+        booking=Booking.objects.create(
+            check_in=request.session.get('param3'),
+            space = space,
+            client = request.user,
+            government_id=request.session.get('param1'),
+            car_plate=request.session.get('param2')    
+        )
+        booking.save()   
+        space.is_booked=True
+        space.save()
+        messages.info(request, "book confirmed")
+        # Redirect to the booking confirmation page
+        return redirect('bookings')
     
 def end_book(request, pk):
-    time=datetime.now()
+    nairobi_tz = pytz.timezone('Africa/Nairobi')
+    now = datetime.now(nairobi_tz)
     data=Booking.objects.get(id=pk)
-    data.checkout=time
-    data.save()
+    timedelta = now - data.check_in
+    request.session['param4']=timedelta.total_seconds() / 3600
+    print(timedelta.total_seconds())
+    """if timedelta.total_seconds() < 3600:
+        data.checkout=now
+        data.has_expired=True
+        data.save()    
+        update_space_availability()
+        return redirect('payout', pk)
+    else:
+        messages.info(request, "The time difference is less than or equal to one hour")
+        return redirect('bookings')"""
+    data.checkout=now
+    data.has_expired=True
+    data.save()    
     update_space_availability()
-    return redirect('bookings')
+    return redirect('payout', pk)
+   
+
+def payout(request, pk):
+    if request.method == "POST":
+        #mpesa code for stkpush
+        timestamp=dt.datetime.now().strftime("%Y%m%d%H%M%S")#get timestamp in fom of string
+
+        #get password
+        data_to_encode=mpesa_express_shortcode +mpesa_passkey+ timestamp
+        encoded=base64.b64encode(data_to_encode.encode())
+        decoded_password=encoded.decode('utf-8')
+
+        #auth credentials ur to get an access token
+        auth_url ="https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
+
+        r=requests.get(auth_url, auth=HTTPBasicAuth(mpesa_consumer_key,mpesa_consumer_secret))
+
+        access_token=r.json()['access_token']
+
+        #stk push url
+        api_url="https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
+        headers={
+            "Authorization":"Bearer %s" % access_token
+        }
+
+        # get data from phone
+        phone_number=request.POST['phone']
+        amount=request.POST['amount']
+
+        request={
+            "BusinessShortCode":mpesa_express_shortcode,    
+            "Password": decoded_password,    
+            "Timestamp":timestamp,    
+            "TransactionType": "CustomerPayBillOnline",    
+            "Amount":1,    
+            "PartyA":f"{phone_number}",    
+            "PartyB":mpesa_express_shortcode,    
+            "PhoneNumber":f"{phone_number}",    
+            "CallBackURL":"https://darajambili.herokuapp.com/express-payment",    
+            "AccountReference":"RESERVESPACE",    
+            "TransactionDesc":"Car parking payment"
+        }
+    
+        response=requests.post(api_url, json=request, headers=headers)
+        return redirect('bookings')
+    else:
+        book_obj=get_object_or_404(Booking, id=pk)
+        price_per_hour = book_obj.space.location.pricing_per_hour
+        time_spent=request.session.get('param4')
+        total_amount=price_per_hour * time_spent
+        return render(request, "payout.html", {'amount': total_amount})
+
+def payments(request):
+    return render(request, "book.html")
 
 
 def create_space(location_obj, capacity):
@@ -269,7 +342,6 @@ def update_space_availability():
     # update the is_booked field of the corresponding spaces to False if the time is expired
     for booking in bookings:
         print(booking.checkout.strftime('%Y-%m-%d %H:%M:%S') , datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-
         print(f"{booking.is_expired()} printed")
         print(booking.checkout.strftime('%Y-%m-%d %H:%M:%S') < datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         if booking.is_expired():
@@ -282,6 +354,7 @@ def update_space_availability():
 def delete_booking(request, pk):
     Book_obj=get_object_or_404(Booking, id=pk)
     Book_obj.delete()
+    messages.info(request, f"{Book_obj.space} booking has been  deleted")
     return redirect('bookings')
 
 
@@ -303,3 +376,18 @@ def  maps(request):
     data=Address.objects.all()
     print(type(data))
     return render(request, "map.html", {'data': data})
+
+
+def my_django_view(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        my_field_value = data.get('my_data')
+        print(my_field_value)
+        location = get_object_or_404(Location, name=my_field_value)
+        print(location)
+        spaces = ParkingSpace.objects.filter(location=location, is_booked=False)
+        results = [{'id': obj.id, 'name': obj.name} for obj in spaces]
+        # Process the data as needed
+        return JsonResponse({'next_value': results})
+    else:
+        return JsonResponse({'error': 'Invalid request method'})

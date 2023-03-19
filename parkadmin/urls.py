@@ -23,7 +23,7 @@ urlpatterns=[
     path('add-parking', views.add_parking, name="add_parking"),
     path('edit-parking/<int:parking_id>', views.edit_parking, name="edit_parking"),
     path('delete-parking/<int:parking_id>', views.delete_parking, name="delete_parking"),
-    path('login', views.login_admin, name="login_admin"),
+    path('login', views.login_admin, name="login_employee"),
     path('logout', views.logout_admin, name="logout_employee")
     
 

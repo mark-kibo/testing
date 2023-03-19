@@ -18,18 +18,21 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required 
 # Create your views here.
 
-@login_required(login_url="login_admin")
+@login_required(login_url="login_employee")
 def index(request):
-    booking=Booking.objects.count()
-    parking=Location.objects.count()
-    parking_location=Location.objects.all()
+    if request.user.is_employee:
+        booking=Booking.objects.count()
+        parking=Location.objects.count()
+        parking_location=Location.objects.all()
 
-    context={
-        'booking':booking,
-        'parking':parking,
-        'parkings':parking_location
-    }
-    return render(request, "parking-admin/index.html", context)
+        context={
+            'booking':booking,
+            'parking':parking,
+            'parkings':parking_location
+        }
+        return render(request, "parking-admin/index.html", context)
+    else:
+        return redirect("login_employee")
 
 
 def user_management(request):
@@ -344,11 +347,11 @@ def login_admin(request):
                 return redirect('index')
             else:
                 messages.info(request, "incorrect username or password")
-                return redirect('login_admin')
+                return redirect('login_employee')
     return render(request, 'parking-admin/login.html')
 
 
 def logout_admin(request):
     logout(request)
-    return redirect('login')
+    return redirect('login_employee')
 

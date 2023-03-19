@@ -80,9 +80,13 @@
         <center><h1>Booking Confirmation</h1></center>
         {% if messages %}
         {% for message in messages %}
-          <center><p>{{message}}</p></center>
+        <center>
+        <div class="alert alert-primary" role="alert">
+          {{message}}
+        </div></center>
         {% endfor %}
         {% endif %}
+        {{response}}
           <center><p>Booking Details:</p></center>
           <table border="1.0" id="table_id">
             <thead style="color:black;">
@@ -105,15 +109,17 @@
                     <td>{{ book.check_in }}</td>
                     <td>{{ book.checkout }}</td>
                     {% if book.is_expired == False %} 
-                    <td > <p class="btn btn-success" > active</p></td> {% else %}
+                    <td > <p class="btn btn-success" > active</p></td> 
+                    {% elif book.is_expired == True %}
 
                     <td ><p class="btn btn-danger">expired</p></td>{% endif %}
                     <td>
+                
                       {% if book.is_expired == True %} 
                       <a href="{% url 'update' book.id %}">
                         <button class="btn btn-primary" disabled>Update</button>
                     </a>
-                      {% else %}
+                      {% elif book.is_expired == False %}
                       <a href="{% url 'update' book.id %}" >
                         <button class="btn btn-primary"> Update</button>
                        
@@ -127,7 +133,7 @@
                         <button disabled class="btn btn-primary">Delete</button>
                         
                     </a>
-                      {% else %}
+                      {% elif book.is_expired == False %}
                       <a href="{% url 'delete_booking' book.id %}" >
                         <button class="btn btn-danger">Delete</button>
                        
@@ -136,8 +142,8 @@
                   </td>
                   {% if book.is_expired == True %} 
                   <td><button class="btn btn-primary" disabled>endbook</button></td>
-                  {% else %}
-                  <td><a href="{% url 'end_book' book.id %}"><button class="btn btn-primary">endbook</button></a></td>
+                  {% elif book.is_expired == False %}
+                  <td><a href="{% url 'end_book' book.id %}"><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">endbook</button></a></td>
                   {% endif %}
                 </tr>
                 {% endfor %}
@@ -146,7 +152,24 @@
     
       </div>
 		</section>
-
+  <!-- Modal -->
+  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          ...
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
 
     <footer class="ftco-footer ftco-bg-dark ftco-section">

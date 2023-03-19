@@ -64,7 +64,10 @@ class Booking(models.Model):
     def is_expired(self):
         """Check if the booking time has expired"""
         now = datetime.now()
-        return self.checkout.strftime('%Y-%m-%d %H:%M:%S') < now.strftime('%Y-%m-%d %H:%M:%S') 
+        if self.checkout:
+            return self.checkout.strftime('%Y-%m-%d %H:%M:%S') < now.strftime('%Y-%m-%d %H:%M:%S')
+        else:
+            return False
 
 
 

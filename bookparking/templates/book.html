@@ -66,51 +66,20 @@
     
 
     <section id="form" class="ftco-section ftco-no-pt bg-light">
-      <form action="" class="form" method="POST">
-        {% csrf_token %}
-        <!--progresss bar-->
-        <div class="progressbar">
-         <div class="progress" id="progress"></div>
-          <div class="progress-step progress-step-active" data-title="Set time"></div>
-          <div class="progress-step"  data-title="Payment"></div>
+ 
+      <div class="card text-center">
+        <div class="card-header">
+          Featured
         </div>
-        <h1 class="text-center">Booking form</h1>
-        {% if messages %}
-        <ul>
-        {% for message in messages %}
-            <li>{{ message }}</li>
-        {% endfor %}
-        </ul>
-    {% endif %}
-        <div class="form-step form-step-active">
-          <div class="input-group">
-            <label for="">Check in</label>
-           {{form.check_in}}
-          </div>
-          <div class="input-group">
-            <label for="">Check out</label>
-            {{form.checkout}}
-           </div>
-          <div class="">
-            <a href="#form" class="btn btn-next width-50 ml-auto" onclick="calculateTimeDifference()">Next</a>
-          </div>
+        <div class="card-body">
+          <h5 class="card-title">Special title treatment</h5>
+          <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+          <a href="#" class="btn btn-primary">Go somewhere</a>
         </div>
-        <div class="form-step">
-          <div class="input-group">
-            <label for="">M-Pesa Number</label>
-            <input type="text" name="mpesa_no" id="" placeholder="+2547xxxxxxx">
-          </div>
-          <div class="input-group">
-            <label for="">Amount</label>
-            <input type="text" name="amount" value="{{space.location.pricing_per_hour}}" id="amount">
-          </div>
-          <div class="btn-groups">
-            <a href="#form" class="btn btn-prev" id="prev">Previous</a>
-            <input type="submit" value="Submit" class="btn">
-          </div>
+        <div class="card-footer text-muted">
+          2 days ago
         </div>
-      </form>
-    
+      </div>
     </section>
 
 

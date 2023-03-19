@@ -6,6 +6,7 @@ from . import views
 
 urlpatterns=[
     path('', views.index, name="home"),
+    path('my-django-view', views.my_django_view, name="new"),
     path('parking-prices', views.pricing, name="pricing"),
     path('spaces/<str:parking_location>', views.spaces, name="spaces"),
     path('about', views.about, name="about"),
@@ -21,7 +22,9 @@ urlpatterns=[
     path('delete/<int:pk>', views.delete_booking, name="delete_booking"),
     path('update/<int:pk>', views.update, name="update"),
     path('maps/<str:address>', views.maps, name="maps"),
-    path('endbook/<int:pk>', views.end_book , name="end_book")
+    path('endbook/<int:pk>', views.end_book , name="end_book"),
+    path('payout/<int:pk>', views.payout, name="payout"), 
+    path('view-payments', views.payments, name="payments")
 
 ]
 
