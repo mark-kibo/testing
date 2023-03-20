@@ -66,20 +66,25 @@
     
 
     <section id="form" class="ftco-section ftco-no-pt bg-light">
- 
+        {% if pay_obj %}
+        {% for obj in pay_obj %}
       <div class="card text-center">
         <div class="card-header">
-          Featured
+          {{obj.booking_id}}
         </div>
         <div class="card-body">
-          <h5 class="card-title">Special title treatment</h5>
-          <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+          <h5 class="card-title">Amount:{{obj.payment_amount}}</h5>
+          <p class="card-text">Status: {{obj.payment_status}}</p>
           <a href="#" class="btn btn-primary">Go somewhere</a>
         </div>
         <div class="card-footer text-muted">
           2 days ago
         </div>
       </div>
+      {% endfor %}
+      {% else %}
+      <center><H2>No payments Made</H2></center>
+      {% endif %}
     </section>
 
 

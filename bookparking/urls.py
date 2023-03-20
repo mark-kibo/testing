@@ -24,7 +24,8 @@ urlpatterns=[
     path('maps/<str:address>', views.maps, name="maps"),
     path('endbook/<int:pk>', views.end_book , name="end_book"),
     path('payout/<int:pk>', views.payout, name="payout"), 
-    path('view-payments', views.payments, name="payments")
+    path('view-payments', views.payments, name="payments"),
+    path('mpesa-callback', views.mpesa_callback, name="mpesa_callback")
 
 ]
 

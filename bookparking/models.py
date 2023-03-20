@@ -91,3 +91,17 @@ class Address(models.Model):
         self.long=g[1]
 
         return super(Address, self).save(*args, **kwargs)
+    
+
+choices=(('paid','paid'),('not paid', 'not paid'))
+class Payout(models.Model):
+    payment_id = models.CharField(max_length=50, unique=True, auto_created=True)
+    transaction_id=models.CharField(max_length=50, unique=True, auto_created=True)
+    booking_id = models.ForeignKey(Booking, on_delete=models.CASCADE)
+    payment_amount = models.DecimalField(max_digits=8, decimal_places=2)
+    payment_date = models.DateTimeField(auto_now_add=True)
+    payment_status = models.CharField(max_length=20,choices=choices)
+    payment_method = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.payment_id

@@ -21,7 +21,7 @@ import datetime as dt
 import base64
 from requests.auth import HTTPBasicAuth
 # import our models for use
-from .models import Location, ParkingSpace, Booking, ReserveUser, Address
+from .models import Location, ParkingSpace, Booking, ReserveUser, Address, Payout
 
 #mpesa needed stuff
 mpesa_environment="sandbox"
@@ -298,7 +298,7 @@ def payout(request, pk):
         phone_number=request.POST['phone']
         amount=request.POST['amount']
 
-        request={
+        request_mpesa={
             "BusinessShortCode":mpesa_express_shortcode,    
             "Password": decoded_password,    
             "Timestamp":timestamp,    
@@ -312,8 +312,20 @@ def payout(request, pk):
             "TransactionDesc":"Car parking payment"
         }
     
-        response=requests.post(api_url, json=request, headers=headers)
-        return redirect('bookings')
+        response=requests.post(api_url, json=request_mpesa, headers=headers)
+        if response:
+            booking=get_object_or_404(Booking, id=pk)
+            request.session['param5']=pk
+            if Payout.objects.filter(booking_id=booking).exists():
+                return redirect('payments')
+            else:
+                payment=Payout.objects.create(
+                    booking_id =booking ,payment_amount=amount,  payment_status="paid" , payment_method="mpesa" 
+                )
+                payment.save()
+                return redirect('payout', pk)
+        else:
+            return redirect('bookings')
     else:
         book_obj=get_object_or_404(Booking, id=pk)
         price_per_hour = book_obj.space.location.pricing_per_hour
@@ -322,7 +334,12 @@ def payout(request, pk):
         return render(request, "payout.html", {'amount': total_amount})
 
 def payments(request):
-    return render(request, "book.html")
+    try:
+        book_obj=get_object_or_404(Booking, id=request.session.get('param5'))
+        pay_obj=Payout.objects.filter(booking_id=book_obj)
+    except:
+        pay_obj={}
+    return render(request, "book.html", {'pay_obj':pay_obj})
 
 
 def create_space(location_obj, capacity):
@@ -391,3 +408,9 @@ def my_django_view(request):
         return JsonResponse({'next_value': results})
     else:
         return JsonResponse({'error': 'Invalid request method'})
+
+
+
+
+def mpesa_callback(request):
+    return HttpResponse(request)
