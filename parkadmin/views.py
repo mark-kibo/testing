@@ -340,7 +340,6 @@ def login_admin(request):
         # authenticate our user
 
         user = authenticate(username=username, password=password)
-        print(user.is_customer)
         if user is not None:
             if user.is_employee:
                 login(request, user)
