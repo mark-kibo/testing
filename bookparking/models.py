@@ -4,6 +4,7 @@ from datetime import datetime
 from simple_history.models import HistoricalRecords
 from django.utils import timezone
 import geocoder
+import uuid
 # Create your models here.
 
 
@@ -95,13 +96,12 @@ class Address(models.Model):
 
 choices=(('paid','paid'),('not paid', 'not paid'))
 class Payout(models.Model):
-    payment_id = models.CharField(max_length=50, unique=True, auto_created=True)
-    transaction_id=models.CharField(max_length=50, unique=True, auto_created=True)
-    booking_id = models.ForeignKey(Booking, on_delete=models.CASCADE)
+    transaction_id=models.UUIDField(unique=True, auto_created=True)
+    space = models.ForeignKey(ParkingSpace, on_delete=models.CASCADE)
     payment_amount = models.DecimalField(max_digits=8, decimal_places=2)
     payment_date = models.DateTimeField(auto_now_add=True)
-    payment_status = models.CharField(max_length=20,choices=choices)
+    payment_status = models.CharField(max_length=20, choices=choices)
     payment_method = models.CharField(max_length=50)
 
     def __str__(self):
-        return self.payment_id
+        return self.space.name
