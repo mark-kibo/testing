@@ -98,6 +98,7 @@ choices=(('paid','paid'),('not paid', 'not paid'))
 class Payout(models.Model):
     transaction_id=models.UUIDField(unique=True, auto_created=True)
     space = models.ForeignKey(ParkingSpace, on_delete=models.CASCADE)
+    client = models.ForeignKey(ReserveUser, on_delete=models.CASCADE, null=True)
     payment_amount = models.DecimalField(max_digits=8, decimal_places=2)
     payment_date = models.DateTimeField(auto_now_add=True)
     payment_status = models.CharField(max_length=20, choices=choices)

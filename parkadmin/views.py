@@ -354,3 +354,17 @@ def logout_admin(request):
     logout(request)
     return redirect('login_employee')
 
+def change_permission(request, id,  pk):
+    if pk == "parkuser":
+        user=get_object_or_404(ReserveUser, id=id)
+        user.is_customer=True
+        user.is_employee=False
+        user.save()
+        print("user is user")
+        return redirect('user')
+    else:
+        user=get_object_or_404(ReserveUser, id=id)
+        user.is_customer=False
+        user.is_employee=True
+        user.save()
+        return redirect('user')

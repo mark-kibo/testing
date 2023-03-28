@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>RS-booking</title>
+    <title>RS-payments</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     
@@ -70,7 +70,7 @@
         <div class="row no-gutters slider-text js-fullheight align-items-end justify-content-start">
           <div class="col-md-9 ftco-animate pb-5">
           	<p class="breadcrumbs"><span class="mr-2"><a href="{% url 'home' %}">Home <i class="ion-ios-arrow-forward"></i></a></span> <span>About us <i class="ion-ios-arrow-forward"></i></span></p>
-            <h1 class="mb-3 bread">Bookings</h1>
+            <h1 class="mb-3 bread">Payments</h1>
           </div>
         </div>
       </div>
@@ -78,7 +78,7 @@
 
     <section class="ftco-section" id="book">
 			<div>
-        <center><h1>Booking Confirmation</h1></center>
+        <center><h1>Payments</h1></center>
         {% if messages %}
         {% for message in messages %}
         <center>
@@ -88,66 +88,34 @@
         {% endfor %}
         {% endif %}
         {{response}}
-          <center><p>Booking Details:</p></center>
+          <center><p>Today Payment details:</p></center>
           <table border="1.0" id="table_id">
             <thead style="color:black;">
                 <tr class="fs-5">
-                    <th>Location</th>
                     <th>Space name</th>
-                    <th>start time</th>
-                    <th>endtime</th>
-                    <th>status</th>
-                    <th>Update</th>
-                    <th>Delete</th>
-                    <th>Endbook</th> 
+                    <th>Amount</th>
+                    <th>Payment method</th> 
+                    <th>Status</th>
                 </tr>
             </thead>
             <tbody>
-                {% for book in booking %}
+                 {% if pay_obj %}
+                {% for obj in pay_obj %} 
                 <tr>
-                    <td>{{  book.space.location.name  }}</td>
-                    <td>{{ book.space.name }}</td>
-                    <td>{{ book.check_in }}</td>
-                    <td>{{ book.checkout }}</td>
-                    {% if book.is_expired == False %} 
-                    <td > <p class="btn btn-success" > active</p></td> 
-                    {% elif book.is_expired == True %}
-
-                    <td ><p class="btn btn-danger">expired</p></td>{% endif %}
-                    <td>
-                
-                      {% if book.is_expired == True %} 
-                      <a href="{% url 'update' book.id %}">
-                        <button class="btn btn-primary" disabled>Update</button>
-                    </a>
-                      {% elif book.is_expired == False %}
-                      <a href="{% url 'update' book.id %}" >
-                        <button class="btn btn-primary"> Update</button>
-                       
-                    </a>
-                      {% endif %}
+                   <td>{{obj.space.name}}</td>
+                   <td>{{obj.payment_amount}}</td>
+                   <td>{{obj.payment_method}}</td>
+                    {% if obj.payment_status == "paid" %} 
+                    <td ><a href="{% url 'receipt' obj.id%}" class="btn btn-success">Ticket</a></td> 
+                    {% else %}
+                    <td ><a href="{% url 'updatepay' obj.id %}" class="btn btn-primary">Pay to get ticket</a></td>
+                    {% endif %}
 
                     </td>
-                    <td>
-                      {% if book.is_expired == True %} 
-                      <a href="">
-                        <button disabled class="btn btn-primary">Delete</button>
-                        
-                    </a>
-                      {% elif book.is_expired == False %}
-                      <a href="{% url 'delete_booking' book.id book.space.id %}" >
-                        <button class="btn btn-danger">Delete</button>
-                       
-                    </a>
-                      {% endif %}
-                  </td>
-                  {% if book.is_expired == True %} 
-                  <td><button class="btn btn-primary" disabled>endbook</button></td>
-                  {% elif book.is_expired == False %}
-                  <td><a href="{% url 'end_book' book.id %}"><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">endbook</button></a></td>
-                  {% endif %}
                 </tr>
+
                 {% endfor %}
+                {% endif %}
             </tbody>
         </table>
     

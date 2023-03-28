@@ -14,6 +14,10 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
 from django.http import JsonResponse
 import json
+import uuid
+
+from django.conf import settings
+from django.core.mail import send_mail 
 
 from requests.api import request
 import requests
@@ -22,6 +26,9 @@ import base64
 from requests.auth import HTTPBasicAuth
 # import our models for use
 from .models import Location, ParkingSpace, Booking, ReserveUser, Address, Payout
+from .forms import UpdatepaymentForm
+from .mpesa import mpesa_stk
+
 
 #mpesa needed stuff
 mpesa_environment="sandbox"
@@ -36,17 +43,17 @@ mpesa_express_shortcode="174379"
 #get  hidden parameters
 
 def billing_receipt(request, pk):
-    obj = get_object_or_404(Booking, id=pk)
-    print(obj.client, obj.check_in)
+    obj = get_object_or_404(Payout, id=pk)
     
 
     # Get data for receipt
-    name = f"{obj.client}"
-    start_date = obj.check_in.strftime('%Y-%m-%d %H:%M:%S').split(" ")[0]
+    Transaction_id = f"{obj.transaction_id}"
+    """start_date = obj.check_in.strftime('%Y-%m-%d %H:%M:%S').split(" ")[0]
     end_date = obj.checkout.strftime('%Y-%m-%d %H:%M:%S').split(" ")[0]
     start_time = obj.check_in.strftime('%Y-%m-%d %H:%M:%S').split(" ")[1][:-3]
-    end_time = obj.checkout.strftime('%Y-%m-%d %H:%M:%S').split(" ")[1][:-3]
-    amount = obj.space.location.pricing_per_hour
+    end_time = obj.checkout.strftime('%Y-%m-%d %H:%M:%S').split(" ")[1][:-3]"""
+    payment_date= obj.payment_date.strftime('%Y-%m-%d %H:%M:%S').split(" ")[0]
+    amount = obj.payment_amount
     location=obj.space.location.name
     space=obj.space.name
 
@@ -59,8 +66,8 @@ def billing_receipt(request, pk):
      # Create data for table
     data = [
         
-        ["Name","location", "space",  "Date in", "Date out", "Time in", "Time out","Amount"],
-        [name, location, space, start_date, end_date, start_time, end_time,  f"${amount:.2f}"]]
+        ["Transaction_id", "Location", "space name", "Paid amount",  "payment date"],
+        [Transaction_id, location,space,  f"${amount:.2f}"], payment_date]
 
       # Set style for title
     styles = getSampleStyleSheet()
@@ -234,6 +241,7 @@ def book(request, space_id):
         messages.info(request, "you have an active booking")
         return redirect('bookings')
     else:
+        request.session['space_id']=space_id
         booking=Booking.objects.create(
             check_in=request.session.get('param3'),
             space = space,
@@ -245,8 +253,9 @@ def book(request, space_id):
         space.is_booked=True
         space.save()
         messages.info(request, "book confirmed")
-        # Redirect to the booking confirmation page
         return redirect('bookings')
+        # Redirect to the booking confirmation page
+        
     
 def end_book(request, pk):
     nairobi_tz = pytz.timezone('Africa/Nairobi')
@@ -266,80 +275,65 @@ def end_book(request, pk):
         return redirect('bookings')"""
     data.checkout=now
     data.has_expired=True
+    space=get_object_or_404(ParkingSpace, id=request.session.get('space_id'))
+    space.is_booked=False
+    space.save()
     data.save()    
-    update_space_availability()
     return redirect('payout', pk)
    
 
 def payout(request, pk):
     if request.method == "POST":
-        #mpesa code for stkpush
-        timestamp=dt.datetime.now().strftime("%Y%m%d%H%M%S")#get timestamp in fom of string
-
-        #get password
-        data_to_encode=mpesa_express_shortcode +mpesa_passkey+ timestamp
-        encoded=base64.b64encode(data_to_encode.encode())
-        decoded_password=encoded.decode('utf-8')
-
-        #auth credentials ur to get an access token
-        auth_url ="https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
-
-        r=requests.get(auth_url, auth=HTTPBasicAuth(mpesa_consumer_key,mpesa_consumer_secret))
-
-        access_token=r.json()['access_token']
-
-        #stk push url
-        api_url="https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
-        headers={
-            "Authorization":"Bearer %s" % access_token
-        }
-
         # get data from phone
         phone_number=request.POST['phone']
         amount=request.POST['amount']
+        email=request.POST['email']
 
-        request_mpesa={
-            "BusinessShortCode":mpesa_express_shortcode,    
-            "Password": decoded_password,    
-            "Timestamp":timestamp,    
-            "TransactionType": "CustomerPayBillOnline",    
-            "Amount":1,    
-            "PartyA":f"{phone_number}",    
-            "PartyB":mpesa_express_shortcode,    
-            "PhoneNumber":f"{phone_number}",    
-            "CallBackURL":"https://darajambili.herokuapp.com/express-payment",    
-            "AccountReference":"RESERVESPACE",    
-            "TransactionDesc":"Car parking payment"
-        }
-    
-        response=requests.post(api_url, json=request_mpesa, headers=headers)
+        """ send_mail(
+            "Order confirmation",
+            "Thank you for your order",
+            settings.EMAIL_HOST_USER,
+            [email],
+            fail_silently=False
+        )"""
+        response=mpesa_stk(amount, phone_number,mpesa_express_shortcode , mpesa_passkey, mpesa_consumer_key, mpesa_consumer_secret)
+        print(response.text)
+       
+
         if response:
             booking=get_object_or_404(Booking, id=pk)
+            client = ReserveUser.objects.get(username=request.user)
             request.session['param5']=pk
-            if Payout.objects.filter(booking_id=booking).exists():
-                return redirect('payments')
-            else:
-                payment=Payout.objects.create(
-                    booking_id =booking ,payment_amount=amount,  payment_status="paid" , payment_method="mpesa" 
-                )
-                payment.save()
-                return redirect('payout', pk)
+            payment=Payout.objects.create(
+               transaction_id=uuid.uuid4(), space=booking.space , client=client, payment_amount=amount,  payment_status="paid" , payment_method="mpesa" 
+            )
+            payment.save()
+            return redirect('payments')
         else:
-            return redirect('bookings')
+            return redirect('payout', pk)
     else:
         book_obj=get_object_or_404(Booking, id=pk)
         price_per_hour = book_obj.space.location.pricing_per_hour
         time_spent=request.session.get('param4')
+        client = ReserveUser.objects.get(username=request.user)
         total_amount=price_per_hour * time_spent
+        payment=Payout.objects.create(
+               transaction_id=uuid.uuid4(), space=book_obj.space , client=client, payment_amount=0,  payment_status="not paid" , payment_method="mpesa" 
+            )
+        payment.save()
         return render(request, "payout.html", {'amount': total_amount})
+
+
 
 def payments(request):
     try:
-        book_obj=get_object_or_404(Booking, id=request.session.get('param5'))
-        pay_obj=Payout.objects.filter(booking_id=book_obj)
+        today = timezone.now().date()
+        client = ReserveUser.objects.get(username=request.user)
+        pay_obj=Payout.objects.filter(client=client, payment_date__date=today).all()
+        print(pay_obj)
     except:
         pay_obj={}
-    return render(request, "book.html", {'pay_obj':pay_obj})
+    return render(request, "payments.html", {'pay_obj':pay_obj, 'booking_id': request.session.get('param5')})
 
 
 def create_space(location_obj, capacity):
@@ -368,9 +362,12 @@ def update_space_availability():
             booking.save()
             print(f"done")
 
-def delete_booking(request, pk):
+def delete_booking(request, pk, sp):
     Book_obj=get_object_or_404(Booking, id=pk)
     Book_obj.delete()
+    space=get_object_or_404(ParkingSpace, id=sp)
+    space.is_booked=False
+    space.save()
     messages.info(request, f"{Book_obj.space} booking has been  deleted")
     return redirect('bookings')
 
@@ -414,3 +411,31 @@ def my_django_view(request):
 
 def mpesa_callback(request):
     return HttpResponse(request)
+
+
+
+    
+
+
+def update_payment(request, pk):
+    payment=get_object_or_404(Payout, id=pk)
+
+    if request.method == "POST":
+        form=UpdatepaymentForm(request.POST)
+        if form.is_valid():
+            
+            phone_number=request.POST['phone']
+            amount=request.POST['amount']
+            
+            response=mpesa_stk(amount, phone_number,mpesa_express_shortcode , mpesa_passkey, mpesa_consumer_key, mpesa_consumer_secret)
+            if response:
+                form.save()
+                messages.info(request, "paid, generate ticket")
+                return redirect('payments')
+            else:
+                messages.info(request, "request failed try again")
+                return redirect('payments')
+    else:
+        form=UpdatepaymentForm(instance=payment)
+        return render(request, 'updatepayment.html', {'form':form})
+

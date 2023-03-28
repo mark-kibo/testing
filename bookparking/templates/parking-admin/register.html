@@ -209,6 +209,27 @@
 						<a href="{% url 'edit_user' user.id %}" class="btn btn-primary btn-sm">Edit</a>
 						<a href="{% url 'delete_user' user.id %}" class="btn btn-danger btn-sm">Delete</a>
 					</td>
+                    <td>
+                        <form action="" method="post">
+                            <select name="permission" id="">
+                                {% if user.is_employee %}
+                                <option value="parkadmin" selected>
+                                    parkadmin</option>
+                                    {% else %}
+                                    <option value="parkuser" selected>
+                                        parkuser</option>
+                                    {% endif %}
+                                </option>
+                                {% if user.is_employee %}
+                                <a href="{% url 'change_permission' user.id 'parkuser'%}"></a><option value="">parkuser</option></a>
+                                {% else %}
+                                <option value=""><a href="{% url 'change_permission' user.id 'parkadmin'%}">parkadmin</a></option>
+                                {% endif %}
+                            </select>
+                            <button type="submit" hidden></button>
+                        </form>
+                        
+                    </td>
 				</tr>
                 {% endfor %}
 			</tbody>

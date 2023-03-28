@@ -126,12 +126,18 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT=os.path.join(BASE_DIR, 'parking')
 STATICFILES_DIRS= [
    os.path.join(BASE_DIR, 'parking/static/'),
 ]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+EMAIL_HOST='smtp.gmail.com'
+EMAIL_HOST_USER='regexmark1@gmail.com'
+EMAIL_HOST_PASSWORD='zowtzrzenooxterl'
+EMAIL_PORT='587'
+EMAIL_USE_TLS=True
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
@@ -145,3 +151,4 @@ CRONJOBS = [    ('0 0 * * *', 'yourappname.views.update_space_availability'),]
 
 # Google Maps API key
 GOOGLE_MAPS_API_KEY = 'AIzaSyDBq8Dq8LSysLUuMa80PVsOqO2ZA33AZWw"'
+

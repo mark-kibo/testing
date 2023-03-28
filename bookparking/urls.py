@@ -19,13 +19,14 @@ urlpatterns=[
     path('book/<int:space_id>/', views.book , name="book"),
     path('create-space/<str:location>', views.create_spaces, name="create-space"),
     path('receipt/<int:pk>', views.billing_receipt, name="receipt"),
-    path('delete/<int:pk>', views.delete_booking, name="delete_booking"),
+    path('delete/<int:pk>-<int:sp>', views.delete_booking, name="delete_booking"),
     path('update/<int:pk>', views.update, name="update"),
     path('maps/<str:address>', views.maps, name="maps"),
     path('endbook/<int:pk>', views.end_book , name="end_book"),
     path('payout/<int:pk>', views.payout, name="payout"), 
     path('view-payments', views.payments, name="payments"),
-    path('mpesa-callback', views.mpesa_callback, name="mpesa_callback")
+    path('mpesa-callback', views.mpesa_callback, name="mpesa_callback"),
+    path('updatepay/<int:pk>', views.update_payment, name="updatepay"),
 
 ]
 

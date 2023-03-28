@@ -63,6 +63,13 @@
     </nav>
     <!-- END nav -->
 
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-secondary" role="alert">
+            {{message}}
+          </div>
+          {% endfor %}
+    {% endif %}
     
 
     <section id="form" class="ftco-section ftco-no-pt bg-light">
@@ -75,7 +82,9 @@
         <div class="card-body">
           <h5 class="card-title">Amount:{{obj.payment_amount}}</h5>
           <p class="card-text">Status: {{obj.payment_status}}</p>
-          <a href="#" class="btn btn-primary">Go somewhere</a>
+          {% if obj.payment_status == "paid" %}<a href="{% url 'receipt' obj.id%}" class="btn btn-primary">Ticket</a>{% else %}
+          <a href="{% url 'updatepay' obj.id %}" class="btn btn-primary">Pay to get ticket</a>
+          {% endif %}
         </div>
         <div class="card-footer text-muted">
           2 days ago

@@ -1,5 +1,5 @@
 from django.contrib.auth.forms import UserCreationForm
-from .models import ReserveUser, Booking, ParkingSpace
+from .models import ReserveUser, Booking, ParkingSpace, Payout
 from django.forms import ModelForm
 from django import forms
 from django.utils import timezone
@@ -47,3 +47,8 @@ class UserForm(UserCreationForm, ModelForm):
 
     
 
+class UpdatepaymentForm(ModelForm):
+    class Meta:
+        model=Payout
+        fields=["payment_amount" , "payment_status"]
+        
