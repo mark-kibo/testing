@@ -386,10 +386,8 @@ def update(request, pk):
         return render(request, "update.html", {'form':form})
 
 
-def  maps(request):
-    data=Address.objects.all()
-    print(type(data))
-    return render(request, "map.html", {'data': data})
+def maps(request):
+    return render(request, "map.html")
 
 
 def my_django_view(request):

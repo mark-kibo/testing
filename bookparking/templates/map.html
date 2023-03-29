@@ -1,27 +1,246 @@
+token="AIzaSyDBq8Dq8LSysLUuMa80PVsOqO2ZA33AZWw"
 {% load static %}
 <!DOCTYPE html>
-<!--
- @license
- Copyright 2019 Google LLC. All Rights Reserved.
- SPDX-License-Identifier: Apache-2.0
--->
-<html>
+<html lang="en">
   <head>
-    <title>Add Map</title>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <link href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,500,600,700,800&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" type="text/css" href="{% static 'style-maps.css'%}" />
+    <link rel="stylesheet" href="{% static 'css/open-iconic-bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/animate.css' %}">
+    
+    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/owl.theme.default.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
+
+    <link rel="stylesheet" href="{% static 'css/aos.css' %}">
+
+
+
+    <!--
+      datatables
+    -->
+    <link rel="stylesheet" type="text/css" href="DataTables/datatables.min.css"/>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jq-3.6.0/dt-1.13.2/b-2.3.4/b-colvis-2.3.4/b-html5-2.3.4/b-print-2.3.4/r-2.4.0/datatables.min.css"/>
+
+    <link rel="stylesheet" href="{% static 'css/ionicons.min.css' %}">
+
+    <link rel="stylesheet" href="{% static 'css/bootstrap-datepicker.css' %}">
+    <link rel="stylesheet" href="{% static 'css/jquery.timepicker.css' %}">
+
+    
+    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
+    <link rel="stylesheet" href="{% static 'css/icomoon.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="shortcut icon" href="{% static 'admin/images/reserve.png'%}" />
+
+    <title>Real-time directions on Google Maps</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  
   </head>
   <body>
-    <h1>Live Map</h1>
-    <form method="POST">
-        {% csrf_token %}
-        <label for="parking_location">Select parking location:</label>
-        <input type="text" id="parking_location" name="parking_location">
-        <button type="submit">Submit</button>
-    </form>
-    {% google_maps map %}
-    {% google_maps_js %}
+    </div>
+   
+	  <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
+	    <div class="container">
+	      <a class="navbar-brand" href="index.html">Reserve<span>space</span></a>
+	      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
+	        <span class="oi oi-menu"></span> Menu
+	      </button>
+
+	      <div class="collapse navbar-collapse" id="ftco-nav">
+	        <ul class="navbar-nav ml-auto">
+	          <li class="nav-item"><a href="{% url 'home' %}" class="nav-link">Home</a></li>
+	          <li class="nav-item "><a href="{% url 'about' %}" class="nav-link">About</a></li>
+	          <li class="nav-item"><a href="{% url 'pricing' %}" class="nav-link">Pricing</a></li>
+            <li class="nav-item active"><a href="{% url 'bookings'  %}" class="nav-link">View bookings</a></li>
+            <li class="nav-item"><a href="{% url 'payments' %}" class="nav-link">View payments</a></li>
+	          <li class="nav-item"><a href="{% url 'contact' %}" class="nav-link">Contact</a></li>
+            {% if user.is_authenticated and user.is_customer %}
+					  <li class="nav-item"><a href="{% url 'logout' %}" class="nav-link">logout</a></li>
+					  {% endif %}
+            
+	        </ul>
+	      </div>
+	    </div>
+	  </nav>
+    <!-- END nav -->
+    
+    <section class="hero-wrap hero-wrap-2 js-fullheight" style="background-image: url('{% static "images/bg_3.jpg" %}');" data-stellar-background-ratio="0.5">
+      
+      <div class="overlay"></div>
+      <div class="container">
+        <div class="row no-gutters slider-text js-fullheight align-items-end justify-content-start">
+          <div class="col-md-9 ftco-animate pb-5">
+          	<p class="breadcrumbs"><span class="mr-2"><a href="{% url 'home' %}">Home <i class="ion-ios-arrow-forward"></i></a></span> <span>About us <i class="ion-ios-arrow-forward"></i></span></p>
+            <h1 class="mb-3 bread">Direction</h1>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="ftco-section" id="book">
+      <div class="form-group">
+      <form action="" class="form-horizontal">
+        <div class="form-group">
+          <label for="from" class="col-xs-2 control label">
+            <i class="far fa-dot-circle"></i>
+            <div class="col-xs-4">
+              <input type="text" id="from" placeholder="Origin" class="form-control">
+            </div>
+          </label>
+        </div>
+        <div class="form-group">
+          <label for="to" class="col-xs-2 control label">
+            <i class="fas fa-map-marker-alt"></i>
+            <div class="col-xs-4">
+              <input type="text" id="to" placeholder="destination" class="form-control">
+            </div>
+          </label>
+        </div>
+        
+      </form>
+      <div class="col-xs-offset-2 col-xs-10">
+        <button class="btb btn-info btn-lg" onclick="calcRoute()">
+          <i class="fas fa-directions"></i>
+        </button>
+    </div>
+    </div>
+    <div class="container">
+      <div id="output"></div>
+    </div>
+      <div class="container">
+        <div id="map" style="height: 400px;"></div>
+      </div>
+    </section>
+
+
+    <footer class="ftco-footer ftco-bg-dark ftco-section">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12 text-center">
+
+            <p><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+  Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="icon-heart color-danger" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
+  <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p>
+          </div>
+        </div>
+      </div>
+    </footer>
+    
   
+
+  <!-- loader -->
+  <div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/></svg></div>
+
+
+  <script src="{% static 'js/jquery.min.js' %}"></script>
+  <script src="{% static 'js/jquery-migrate-3.0.1.min.js' %}"></script>
+  <script src="{% static 'js/popper.min.js' %}"></script>
+  <script src="{% static 'js/bootstrap.min.js' %}"></script>
+  <script src="{% static 'js/jquery.easing.1.3.js' %}"></script>
+  <script src="{% static 'js/jquery.waypoints.min.js' %}"></script>
+  <script src="{% static 'js/jquery.stellar.min.js' %}"></script>
+  <script src="{% static 'js/owl.carousel.min.js' %}"></script>
+  <script src="{% static 'js/jquery.magnific-popup.min.js' %}"></script>
+  <script src="{% static 'js/aos.js' %}"></script>
+  <script src="{% static 'js/jquery.animateNumber.min.js' %}"></script>
+  <script src="{% static 'js/bootstrap-datepicker.js' %}"></script>
+  <script src="{% static 'js/jquery.timepicker.min.js' %}"></script>
+  <script src="{% static 'js/scrollax.min.js' %}"></script>
+  
+  <script src="{% static 'js/google-map.js' %}"></script>
+  <script src="{% static 'js/main.js' %}"></script>
+
+  <!--datatables-->
+
+<script type="text/javascript" src="DataTables/datatables.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/v/dt/jq-3.6.0/dt-1.13.2/b-2.3.4/b-colvis-2.3.4/b-html5-2.3.4/b-print-2.3.4/r-2.4.0/datatables.min.js"></script>
+<script>
+  $(document).ready( function () {
+    $('#table_id').DataTable();
+} );
+</script>
+<script src="//maps.googleapis.com/maps/api/js?key=AIzaSyDBq8Dq8LSysLUuMa80PVsOqO2ZA33AZWw&libraries=places"></script>
+
+<script>
+  var mylating={
+    lat: 38.3460, lng: -0.4907
+  };
+  var mapOptions={
+    center:mylating,
+    zoom:7,
+    maTypeId:google.maps.MapTypeId.ROADMAP
+  };
+
+  //create map
+
+  var map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+  //Create a directions service object to use thr route method
+
+  var directionsService = new google.maps.DirectionsService();
+
+  //create a directions rendere object which we will use to display
+
+  var directionsDisplay= new google.maps.DirectionsRenderer();
+
+  //bind the directions rendere to the map
+
+  directionsDisplay.setMap(map);
+
+  //function
+
+  function calcRoute(){
+      //create request
+      var request={
+        origin:document.getElementById("from").value,
+        destination:document.getElementById("to").value,
+        travelMode:google.maps.TravelMode.DRIVING,
+        unitSystem: google.maps.UnitSystem.IMPERIAL 
+
+      }
+
+      //pass the request to the route method
+      directionsService.route(request, (result, status) => {
+        if(status == google.maps.DirectionsStatus.OK){
+          //get distance and time
+          const output = document.querySelector('#output');
+          output.innerHTML = "<div class='alert-info'>from: " + document.getElementById("from").value + ".<br>tTo: " + document.getElementById("to").value + ". <br> Driving distance  <i class='fas fa-road'></i>:" + result.routes[0].legs[0].distance.text + ".<br> Duration:" + result.routes[0].legs[0].duration.text + ".</div>"; 
+        
+
+          //display route
+          directionsDisplay.setDirections(result);
+        }else{
+          //delete route from map
+          directionsDisplay.setDirections({routes:[]});
+
+          //map center
+          map.setCenter(mylating);
+
+          //show error message
+          output.innerHTML="<div class='alert-danger'><i class='fas fa-exclamation-triangle'></i>could not retrive driving distance.</div>";
+        }
+      });
+      var options ={
+    types:['(cities)']
+  }
+
+  var input1=document.getElementById("from");
+  var autocomplete1 = new google.maps.places.Autocomplete(input1, options);
+
+  var input2=document.getElementById("to");
+  var autocomplete2 = new google.maps.places.Autocomplete(input2, options);
+
+  }
+  //create autocomplete objects for all input
+
+  
+</script>
   </body>
 </html>

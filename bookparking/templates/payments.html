@@ -106,9 +106,9 @@
                    <td>{{obj.payment_amount}}</td>
                    <td>{{obj.payment_method}}</td>
                     {% if obj.payment_status == "paid" %} 
-                    <td ><a href="{% url 'receipt' obj.id%}" class="btn btn-success">Ticket</a></td> 
+                    <td ><a href="{% url 'receipt' obj.id%}" class="btn btn-success"><button>Ticket</button></a></td> 
                     {% else %}
-                    <td ><a href="{% url 'updatepay' obj.id %}" class="btn btn-primary">Pay to get ticket</a></td>
+                    <td ><a href="{% url 'updatepay' obj.id %}" class="btn btn-primary"><button>pay to get ticket</button></a></td>
                     {% endif %}
 
                     </td>
