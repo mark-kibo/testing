@@ -289,25 +289,29 @@ def payout(request, pk):
         amount=request.POST['amount']
         email=request.POST['email']
 
-        """ send_mail(
-            "Order confirmation",
-            "Thank you for your order",
-            settings.EMAIL_HOST_USER,
-            [email],
-            fail_silently=False
-        )"""
         response=mpesa_stk(amount, phone_number,mpesa_express_shortcode , mpesa_passkey, mpesa_consumer_key, mpesa_consumer_secret)
         print(response.text)
        
+        payment_status = "not paid" if not response else "paid"
 
-        if response:
-            booking=get_object_or_404(Booking, id=pk)
-            client = ReserveUser.objects.get(username=request.user)
-            request.session['param5']=pk
-            payment=Payout.objects.create(
-               transaction_id=uuid.uuid4(), space=booking.space , client=client, payment_amount=amount,  payment_status="paid" , payment_method="mpesa" 
-            )
+        booking=get_object_or_404(Booking, id=pk)
+        client = ReserveUser.objects.get(username=request.user)
+        request.session['param5']=pk
+        payment, created = Payout.objects.get_or_create(
+               space=booking.space , client=client, payment_method="mpesa",
+               defaults={
+                   'transaction_id': uuid.uuid4(),
+                   'payment_amount': amount,
+                   'payment_status': payment_status
+               }
+        )
+
+        if not created:
+            payment.payment_amount = amount
+            payment.payment_status = payment_status
             payment.save()
+
+        if payment_status == "paid":
             return redirect('payments')
         else:
             return redirect('payout', pk)
@@ -317,11 +321,22 @@ def payout(request, pk):
         time_spent=request.session.get('param4')
         client = ReserveUser.objects.get(username=request.user)
         total_amount=price_per_hour * time_spent
-        payment=Payout.objects.create(
-               transaction_id=uuid.uuid4(), space=book_obj.space , client=client, payment_amount=0,  payment_status="not paid" , payment_method="mpesa" 
-            )
-        payment.save()
+        payment, created = Payout.objects.get_or_create(
+               space=book_obj.space , client=client, payment_method="mpesa",
+               defaults={
+                   'transaction_id': uuid.uuid4(),
+                   'payment_amount': 0,
+                   'payment_status': "not paid"
+               }
+        )
+
+        if not created:
+            payment.payment_amount = 0
+            payment.payment_status = "not paid"
+            payment.save()
+
         return render(request, "payout.html", {'amount': total_amount})
+
 
 
 
@@ -386,8 +401,10 @@ def update(request, pk):
         return render(request, "update.html", {'form':form})
 
 
-def maps(request):
-    return render(request, "map.html")
+@login_required(login_url="login_user")
+def maps(request, pk):
+    location=get_object_or_404(Booking, id=pk)
+    return render(request, "map.html", {"location":location.space.location.name})
 
 
 def my_django_view(request):
@@ -419,15 +436,17 @@ def update_payment(request, pk):
     payment=get_object_or_404(Payout, id=pk)
 
     if request.method == "POST":
-        form=UpdatepaymentForm(request.POST)
+        form=UpdatepaymentForm(request.POST, instance=payment)
         if form.is_valid():
-            
             phone_number=request.POST['phone']
             amount=request.POST['amount']
             
             response=mpesa_stk(amount, phone_number,mpesa_express_shortcode , mpesa_passkey, mpesa_consumer_key, mpesa_consumer_secret)
             if response:
-                form.save()
+                payment = form.save(commit=False)
+                payment.payment_amount = amount
+                payment.payment_status = "paid"
+                payment.save()
                 messages.info(request, "paid, generate ticket")
                 return redirect('payments')
             else:
@@ -436,4 +455,5 @@ def update_payment(request, pk):
     else:
         form=UpdatepaymentForm(instance=payment)
         return render(request, 'updatepayment.html', {'form':form})
+
 

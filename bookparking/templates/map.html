@@ -1,6 +1,5 @@
-token="AIzaSyDBq8Dq8LSysLUuMa80PVsOqO2ZA33AZWw"
-{% load static %}
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -60,6 +59,8 @@ token="AIzaSyDBq8Dq8LSysLUuMa80PVsOqO2ZA33AZWw"
             <li class="nav-item active"><a href="{% url 'bookings'  %}" class="nav-link">View bookings</a></li>
             <li class="nav-item"><a href="{% url 'payments' %}" class="nav-link">View payments</a></li>
 	          <li class="nav-item"><a href="{% url 'contact' %}" class="nav-link">Contact</a></li>
+            
+            
             {% if user.is_authenticated and user.is_customer %}
 					  <li class="nav-item"><a href="{% url 'logout' %}" class="nav-link">logout</a></li>
 					  {% endif %}
@@ -83,32 +84,34 @@ token="AIzaSyDBq8Dq8LSysLUuMa80PVsOqO2ZA33AZWw"
       </div>
     </section>
     <section class="ftco-section" id="book">
-      <div class="form-group">
-      <form action="" class="form-horizontal">
-        <div class="form-group">
-          <label for="from" class="col-xs-2 control label">
-            <i class="far fa-dot-circle"></i>
-            <div class="col-xs-4">
-              <input type="text" id="from" placeholder="Origin" class="form-control">
-            </div>
-          </label>
+      <center>
+      <div class="form-inline">
+        <form action="" class="form-horizontal">
+          <div class="form-group">
+            <label for="from" class="col-xs-2 control label">
+              <i class="far fa-dot-circle"></i>
+              <div class="col-xs-4">
+                <input type="text" id="from" placeholder="Origin" class="form-control">
+              </div>
+            </label>
+          </div>
+          <div class="form-group">
+            <label for="to" class="col-xs-2 control label">
+              <i class="fas fa-map-marker-alt"></i>
+              <div class="col-xs-4">
+                <input type="text" id="to" placeholder="Destination" class="form-control" value="{{location}}">
+              </div>
+            </label>
+          </div>
+        </form>
+        <div class="col-xs-offset-2 col-xs-10">
+          <button class="btn btn-info btn-lg" onclick="calcRoute()">
+            <i class="fas fa-directions"></i>
+          </button>
         </div>
-        <div class="form-group">
-          <label for="to" class="col-xs-2 control label">
-            <i class="fas fa-map-marker-alt"></i>
-            <div class="col-xs-4">
-              <input type="text" id="to" placeholder="destination" class="form-control">
-            </div>
-          </label>
-        </div>
-        
-      </form>
-      <div class="col-xs-offset-2 col-xs-10">
-        <button class="btb btn-info btn-lg" onclick="calcRoute()">
-          <i class="fas fa-directions"></i>
-        </button>
-    </div>
-    </div>
+      </div>
+    </center>
+      
     <div class="container">
       <div id="output"></div>
     </div>
@@ -169,17 +172,19 @@ token="AIzaSyDBq8Dq8LSysLUuMa80PVsOqO2ZA33AZWw"
 <script src="//maps.googleapis.com/maps/api/js?key=AIzaSyDBq8Dq8LSysLUuMa80PVsOqO2ZA33AZWw&libraries=places"></script>
 
 <script>
+  
   var mylating={
     lat: 38.3460, lng: -0.4907
   };
+  //method to get users location and pass the longitude and latitude to my maps? 
   var mapOptions={
     center:mylating,
-    zoom:7,
+    zoom:13,
     maTypeId:google.maps.MapTypeId.ROADMAP
   };
 
   //create map
-
+  getCurrentLocation()
   var map = new google.maps.Map(document.getElementById("map"), mapOptions);
 
   //Create a directions service object to use thr route method
@@ -197,6 +202,8 @@ token="AIzaSyDBq8Dq8LSysLUuMa80PVsOqO2ZA33AZWw"
   //function
 
   function calcRoute(){
+      //get users current location
+      
       //create request
       var request={
         origin:document.getElementById("from").value,
@@ -211,7 +218,7 @@ token="AIzaSyDBq8Dq8LSysLUuMa80PVsOqO2ZA33AZWw"
         if(status == google.maps.DirectionsStatus.OK){
           //get distance and time
           const output = document.querySelector('#output');
-          output.innerHTML = "<div class='alert-info'>from: " + document.getElementById("from").value + ".<br>tTo: " + document.getElementById("to").value + ". <br> Driving distance  <i class='fas fa-road'></i>:" + result.routes[0].legs[0].distance.text + ".<br> Duration:" + result.routes[0].legs[0].duration.text + ".</div>"; 
+          output.innerHTML = "<div class='alert-info'>from: " + document.getElementById("from").value + ".<br> To: " + document.getElementById("to").value + ". <br> Driving distance  <i class='fas fa-road'></i>:" + result.routes[0].legs[0].distance.text + ".<br> Duration:" + result.routes[0].legs[0].duration.text + ".</div>"; 
         
 
           //display route
@@ -227,7 +234,48 @@ token="AIzaSyDBq8Dq8LSysLUuMa80PVsOqO2ZA33AZWw"
           output.innerHTML="<div class='alert-danger'><i class='fas fa-exclamation-triangle'></i>could not retrive driving distance.</div>";
         }
       });
-      var options ={
+  
+
+  }
+
+  //get user current location
+
+  function getCurrentLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        // Reverse geocode the coordinates to obtain the place name
+        const geocoder = new google.maps.Geocoder();
+        const currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+        geocoder.geocode({ 'latLng': currentLocation }, (results, status) => {
+          if (status == google.maps.GeocoderStatus.OK) {
+            if (results[0]) {
+              // Set user's current location as the origin
+              const currentLocationName = results[0].formatted_address;
+              document.getElementById("from").value = currentLocationName;
+              // Call the calcRoute() function with updated origin
+              calcRoute();
+            } else {
+              alert("No results found");
+            }
+          } else {
+            console.log(status);
+            alert("Geocoder failed due to: " + status);
+          }
+        });
+      },
+      (error) => {
+        console.log(error);
+        alert("Unable to retrieve your location");
+      }
+    );
+  } else {
+    alert("Geolocation is not supported by this browser");
+  }
+}
+
+  //create autocomplete objects for all input
+  var options ={
     types:['(cities)']
   }
 
@@ -236,10 +284,6 @@ token="AIzaSyDBq8Dq8LSysLUuMa80PVsOqO2ZA33AZWw"
 
   var input2=document.getElementById("to");
   var autocomplete2 = new google.maps.places.Autocomplete(input2, options);
-
-  }
-  //create autocomplete objects for all input
-
   
 </script>
   </body>

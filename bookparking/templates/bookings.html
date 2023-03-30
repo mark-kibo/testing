@@ -99,7 +99,8 @@
                     <th>status</th>
                     <th>Update</th>
                     <th>Delete</th>
-                    <th>Endbook</th> 
+                    <th>Endbook</th>
+                    <th>Directions</th> 
                 </tr>
             </thead>
             <tbody>
@@ -146,6 +147,23 @@
                   {% elif book.is_expired == False %}
                   <td><a href="{% url 'end_book' book.id %}"><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">endbook</button></a></td>
                   {% endif %}
+                  {% if book.is_expired == True %} 
+                  <td>
+                    <a href="">
+                      <button disabled class="btn btn-primary">Directions</button>
+                      
+                  </a>
+                  </td>
+                  {% elif book.is_expired == False %}
+                  <td>
+                      <a href="{% url 'maps' book.id %}" >
+                        <button class="btn btn-success">Directions</button>
+                       
+                    </a>
+                  </td>
+                  {% endif %}
+                    
+
                 </tr>
                 {% endfor %}
             </tbody>
