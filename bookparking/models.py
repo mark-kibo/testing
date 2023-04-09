@@ -73,25 +73,10 @@ class Booking(models.Model):
 
 
 
-class Employee(models.Model):
-    username=models.CharField(max_length=255)
-    password=models.CharField(max_length=1000)
-
 
 
 acces_token='pk.eyJ1Ijoid2F3ZXJ1ZnJhIiwiYSI6ImNsZjd2OWE3YjAyOWYzeXBubTgxdzJyeDgifQ.JNJMOHwkX74B3jLDv1PYeg'
-class Address(models.Model):
-    address=models.CharField(max_length=25)
-    lat=models.FloatField(blank=True, null=True)
-    long=models.FloatField(blank=True, null=True)
 
-    def save(self, *args, **kwargs):
-        g=geocoder.mapbox(self.address, key=f'{acces_token}')
-        g=g.latlng #[lat, long]
-        self.lat=g[0]
-        self.long=g[1]
-
-        return super(Address, self).save(*args, **kwargs)
     
 
 choices=(('paid','paid'),('not paid', 'not paid'))

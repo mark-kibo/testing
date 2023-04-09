@@ -37,7 +37,7 @@ def mpesa_stk(amount, phone_number,mpesa_express_shortcode , mpesa_passkey, mpes
         "PartyA":f"{phone_number}",    
         "PartyB":mpesa_express_shortcode,    
         "PhoneNumber":f"{phone_number}",    
-        "CallBackURL":"https://darajambili.herokuapp.com/express-payment",    
+        "CallBackURL":"https://8626-102-135-169-126.eu.ngrok.io/api/Likes",    
         "AccountReference":"RESERVESPACE",    
         "TransactionDesc":"Car parking payment"
     }

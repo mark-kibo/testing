@@ -111,6 +111,9 @@
         </div>
       </div>
     </center>
+
+    <button id="startButton" onclick="startTracking()">Start</button>
+
       
     <div class="container">
       <div id="output"></div>
@@ -176,6 +179,18 @@
   var mylating={
     lat: 38.3460, lng: -0.4907
   };
+  var marker = new google.maps.Marker({
+    position: mylating,
+    map: map,
+    icon: {
+        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+        strokeColor: "#FF0000",
+        scale: 5
+    },
+    title: "Current location"
+});
+
+
   //method to get users location and pass the longitude and latitude to my maps? 
   var mapOptions={
     center:mylating,
@@ -200,10 +215,57 @@
   directionsDisplay.setMap(map);
 
   //function
+  function startTracking() {
+  if (navigator.geolocation) {
+    navigator.geolocation.watchPosition(function(position) {
+      var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+      
+      // Set the marker icon to a circle with the heading of travel
+      marker.setIcon({
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 5,
+        fillColor: '#000',
+        fillOpacity: 0.8,
+        strokeColor: '#fff',
+        strokeWeight: 2,
+        rotation: position.coords.heading
+      });
+      
+      marker.setPosition(latLng);
+      map.setCenter(latLng);
+      map.setZoom(15);
+      calcDirection(latLng);
+    });
+  } else {
+    alert("Geolocation is not supported by this browser.");
+  }
+}
+
+
+
+function calcDirection(latLng) {
+    var request = {
+        origin: latLng,
+        destination: document.getElementById("to").value,
+        travelMode: google.maps.TravelMode.DRIVING
+    };
+    directionsService.route(request, function(result, status) {
+        if (status == google.maps.DirectionsStatus.OK) {
+            var distance = result.routes[0].legs[0].distance.text;
+            var duration = result.routes[0].legs[0].duration.text;
+            var direction = result.routes[0].legs[0].steps[0].instructions;
+            var output = document.querySelector("#output");
+            output.innerHTML = "<div class='alert-info'>Distance: " + distance + ".<br>Duration: " + duration + ".<br>Direction: " + direction + ".</div>";
+        } else {
+            output.innerHTML = "<div class='alert-danger'>Could not retrieve driving directions.</div>";
+        }
+    });
+}
 
   function calcRoute(){
       //get users current location
-      
+      marker.setPosition(null);
+    navigator.geolocation.clearWatch(null);
       //create request
       var request={
         origin:document.getElementById("from").value,

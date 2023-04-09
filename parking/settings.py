@@ -135,7 +135,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 EMAIL_HOST='smtp.gmail.com'
 EMAIL_HOST_USER='regexmark1@gmail.com'
 EMAIL_HOST_PASSWORD='zowtzrzenooxterl'
-EMAIL_PORT='587'
+EMAIL_PORT=587
 EMAIL_USE_TLS=True
 
 # Default primary key field type

@@ -25,7 +25,7 @@ import datetime as dt
 import base64
 from requests.auth import HTTPBasicAuth
 # import our models for use
-from .models import Location, ParkingSpace, Booking, ReserveUser, Address, Payout
+from .models import Location, ParkingSpace, Booking, ReserveUser, Payout
 from .forms import UpdatepaymentForm
 from .mpesa import mpesa_stk
 
@@ -174,7 +174,7 @@ def login_user(request):
         # authenticate our user
 
         user = authenticate(username=username, password=password)
-        print(user.is_customer)
+     
         if user is not None:
             if user.is_customer:
                 login(request, user)
@@ -182,6 +182,9 @@ def login_user(request):
             else:
                 messages.info(request, "incorrect username or password")
                 return redirect('login_user')
+        else:
+            messages.info(request, "user does not exist")
+            return redirect('login_user')
     return render(request, 'login.html')
 
 

@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 import io
 from django.http import HttpResponse
 from reportlab.pdfgen import canvas
-from bookparking.models import ReserveUser, Booking, Location, ParkingSpace, Employee
+from bookparking.models import ReserveUser, Booking, Location, ParkingSpace
 from django.contrib import messages
 from datetime import datetime
 from django.template.loader import get_template
